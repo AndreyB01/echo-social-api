@@ -18,16 +18,17 @@ Rails.application.routes.draw do
       end
 
       resources :hashtags, only: [] do
-      get :posts, to: "hashtags#posts", on: :member
+        get :posts, to: "hashtags#posts", on: :member
       end
 
       resources :users, only: [] do
-      member do
-      post   "follow",   to: "follows#create"
-      delete "follow",   to: "follows#destroy"
+        member do
+          post "follow", to: "follows#create"
+          delete "follow", to: "follows#destroy"
+        end
       end
-    end
 
+      resources :notifications, only: [:index]
     end
   end
 end
