@@ -28,7 +28,16 @@ Rails.application.routes.draw do
         end
       end
 
-      resources :notifications, only: [:index]
+      resources :notifications, only: [:index] do
+        member do
+          patch :read
+        end
+
+        collection do
+          patch :read_all
+          get :unread_count
+        end
+      end
     end
   end
 end

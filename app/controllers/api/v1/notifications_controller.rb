@@ -12,6 +12,36 @@ class Api::V1::NotificationsController < ApplicationController
     }
   end
 
+  def read
+    notification = current_user.notifications.find(params[:id])
+
+    notification.update!(read_at: Time.current)
+
+    render json: {
+      message: "Notification marked as read"
+    }
+  end
+
+  def read_all
+    current_user.notifications
+                .where(read_at: nil)
+                .update_all(read_at: Time.current)
+
+    render json: {
+      message: "All notifications marked as read"
+    }
+  end
+
+  def unread_count
+    count = current_user.notifications
+                        .where(read_at: nil)
+                        .count
+
+    render json: {
+      unread_count: count
+    }
+  end
+
   private
 
   def serialize(notification)
