@@ -5,21 +5,21 @@ module Api
       before_action :set_post, only: %i[show update destroy]
 
       def index
-        limit = params.fetch(:limit, 20).to_i.clamp(1, 100)
-        offset = params.fetch(:offset, 0).to_i
-
         posts = Post
-          .includes(:user)
-          .order(created_at: :desc)
-          .limit(limit)
-          .offset(offset)
+                  .includes(:user)
+                  .order(created_at: :desc)
+                  .page(params[:page])
+                  .per(params[:per_page])
 
         render json: {
-          data: posts.map { |post| serialize_post(post) },
+          data: PostSerializer.render_collection(posts),
+
           meta: {
-            limit: limit,
-            offset: offset,
-            count: posts.size
+            current_page: posts.current_page,
+            next_page: posts.next_page,
+            prev_page: posts.prev_page,
+            total_pages: posts.total_pages,
+            total_count: posts.total_count
           }
         }
       end
@@ -29,7 +29,7 @@ module Api
 
         if post.save
           render json: {
-            data: serialize_post(post)
+            data: PostSerializer.render(post)
           }, status: :created
         else
           render json: {
@@ -40,7 +40,7 @@ module Api
 
       def show
         render json: {
-          data: serialize_post(@post)
+          data: PostSerializer.render(@post)
         }, status: :ok
       end
 
@@ -49,7 +49,7 @@ module Api
 
         if @post.update(post_params)
           render json: {
-            data: serialize_post(@post)
+            data: PostSerializer.render(@post)
           }, status: :ok
         else
           render json: {
@@ -80,8 +80,8 @@ module Api
           id: post.id,
           body: post.body,
           created_at: post.created_at,
-          likes_count: post.likes.count,
-          comments_count: post.comments.count,
+          likes_count: post.likes.size,
+          comments_count: post.comments.size,
           author: {
             id: post.user.id,
             username: post.user.username,

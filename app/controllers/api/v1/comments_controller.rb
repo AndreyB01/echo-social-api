@@ -2,14 +2,26 @@ class Api::V1::CommentsController < ApplicationController
   before_action :authenticate_user!, except: [:index]
 
   def index
-    post = Post.find(params[:post_id])
+  post = Post.find(params[:post_id])
 
-    comments = post.comments.includes(:user).order(created_at: :asc)
+  comments = post.comments
+                 .includes(:user)
+                 .order(created_at: :asc)
+                 .page(params[:page])
+                 .per(params[:per_page] || 20)
 
-    render json: {
-      data: comments.map { |comment| serialize_comment(comment) }
+  render json: {
+    data: comments.map { |comment| serialize_comment(comment) },
+
+    meta: {
+      current_page: comments.current_page,
+      next_page: comments.next_page,
+      prev_page: comments.prev_page,
+      total_pages: comments.total_pages,
+      total_count: comments.total_count
     }
-  end
+  }
+end
 
   def create
     post = Post.find(params[:post_id])
