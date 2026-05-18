@@ -18,6 +18,8 @@ class Notification < ApplicationRecord
             presence: true,
             inclusion: { in: TYPES }
 
+  scope :unread, -> { where(read_at: nil) }
+
   after_create_commit :broadcast_notification
 
   private
