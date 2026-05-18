@@ -8,13 +8,9 @@ class PostSerializer
       likes_count: post.likes_count,
       comments_count: post.comments_count,
 
-      hashtags: post.respond_to?(:hashtags) ? post.hashtags.map(&:name) : [],
+      hashtags: post.hashtags.map(&:name),
 
-      author: {
-        id: post.user.id,
-        username: post.user.username,
-        display_name: post.user.display_name
-      }
+      author: UserSerializer.render(post.user)
     }
   end
 
