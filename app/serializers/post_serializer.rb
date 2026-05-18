@@ -5,8 +5,8 @@ class PostSerializer
       body: post.body,
       created_at: post.created_at,
 
-      likes_count: post.likes.size,
-      comments_count: post.comments.size,
+      likes_count: post.likes_count,
+      comments_count: post.comments_count,
 
       hashtags: post.respond_to?(:hashtags) ? post.hashtags.map(&:name) : [],
 
