@@ -9,7 +9,7 @@ class Api::V1::NotificationsController < ApplicationController
                                 .per(params[:per_page] || 20)
 
     render json: {
-      data: notifications.map { |notification| serialize(notification) },
+      data: NotificationSerializer.render_collection(notifications),
 
       meta: {
         current_page: notifications.current_page,
