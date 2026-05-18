@@ -5,7 +5,16 @@ RSpec.describe "Notifications API", type: :request do
   let!(:actor) { create(:user) }
   let!(:post) { create(:post, user: user) }
   let!(:like) { create(:like, user: actor, post: post) }
-  let(:headers) { { "Authorization" => "Bearer #{user.create_jwt}" } }
+
+  let(:token) do
+    Jwt::Encoder.call(user_id: user.id)
+  end
+
+  let(:headers) do
+    {
+      "Authorization" => "Bearer #{token}"
+    }
+  end
 
   describe "GET /api/v1/notifications" do
     before { get "/api/v1/notifications", headers: headers }

@@ -3,7 +3,7 @@ class Api::V1::NotificationsController < ApplicationController
 
   def index
     notifications = current_user.notifications
-                                .includes(:actor, :notifiable)
+                                .includes(:actor)
                                 .order(created_at: :desc)
                                 .page(params[:page])
                                 .per(params[:per_page] || 20)

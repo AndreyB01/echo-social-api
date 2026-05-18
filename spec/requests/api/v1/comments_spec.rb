@@ -4,7 +4,16 @@ RSpec.describe "Comments API", type: :request do
   let!(:user) { create(:user) }
   let!(:post) { create(:post, user: user) }
   let!(:comments) { create_list(:comment, 3, post: post, user: user) }
-  let(:headers) { { "Authorization" => "Bearer #{user.create_jwt}" } }
+
+  let(:token) do
+    Jwt::Encoder.call(user_id: user.id)
+  end
+
+  let(:headers) do
+    {
+      "Authorization" => "Bearer #{token}"
+    }
+  end
 
   describe "GET /api/v1/posts/:post_id/comments" do
     before { get "/api/v1/posts/#{post.id}/comments", headers: headers }
