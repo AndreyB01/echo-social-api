@@ -5,23 +5,21 @@ module Api
       before_action :set_post, only: %i[show update destroy]
 
       def index
-        posts = Post
-                  .includes(:user, :hashtags)
-                  .order(created_at: :desc)
-                  .page(params[:page])
-                  .per(params[:per_page])
+        posts = Post.includes(:user, :likes, :comments)
+            .order(created_at: :desc)
+            .page(params[:page])
+            .per(params[:per_page])
 
-        render json: {
-          data: PostSerializer.render_collection(posts),
-
-          meta: {
-            current_page: posts.current_page,
-            next_page: posts.next_page,
-            prev_page: posts.prev_page,
-            total_pages: posts.total_pages,
-            total_count: posts.total_count
-          }
-        }
+render json: {
+  data: PostSerializer.render_collection(posts),
+  meta: {
+    current_page: posts.current_page,
+    next_page: posts.next_page,
+    prev_page: posts.prev_page,
+    total_pages: posts.total_pages,
+    total_count: posts.total_count
+  }
+}
       end
 
       def create

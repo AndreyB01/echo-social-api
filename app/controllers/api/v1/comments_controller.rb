@@ -5,14 +5,13 @@ class Api::V1::CommentsController < ApplicationController
   post = Post.find(params[:post_id])
 
   comments = post.comments
-                 .includes(:user)
+                 .includes(:user) 
                  .order(created_at: :asc)
                  .page(params[:page])
                  .per(params[:per_page] || 20)
 
   render json: {
     data: CommentSerializer.render_collection(comments),
-
     meta: {
       current_page: comments.current_page,
       next_page: comments.next_page,
@@ -23,18 +22,18 @@ class Api::V1::CommentsController < ApplicationController
   }
 end
 
-  def create
-    post = Post.find(params[:post_id])
+def create
+  post = Post.find(params[:post_id])
 
-    comment = current_user.comments.create!(
-      post: post,
-      body: comment_params[:body]
-    )
+  comment = current_user.comments.create!(
+    post: post,
+    body: comment_params[:body]
+  )
 
-    render json: {
-      data: CommentSerializer.render(comment)
-    }, status: :created
-  end
+  render json: {
+    data: CommentSerializer.render(comment)
+  }, status: :created
+end
 
   def destroy
     comment = current_user.comments.find(params[:id])
