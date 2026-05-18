@@ -6,7 +6,7 @@ module Api
 
       def index
         posts = Post
-                  .includes(:user)
+                  .includes(:user, :hashtags)
                   .order(created_at: :desc)
                   .page(params[:page])
                   .per(params[:per_page])
