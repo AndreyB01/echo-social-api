@@ -11,7 +11,7 @@ class Api::V1::CommentsController < ApplicationController
                  .per(params[:per_page] || 20)
 
   render json: {
-    data: comments.map { |comment| serialize_comment(comment) },
+    data: CommentSerializer.render_collection(comments),
 
     meta: {
       current_page: comments.current_page,
@@ -32,7 +32,7 @@ end
     )
 
     render json: {
-      data: serialize_comment(comment)
+      data: CommentSerializer.render(comment)
     }, status: :created
   end
 
@@ -52,16 +52,5 @@ end
     params.require(:comment).permit(:body)
   end
 
-  def serialize_comment(comment)
-    {
-      id: comment.id,
-      body: comment.body,
-      created_at: comment.created_at,
-      author: {
-        id: comment.user.id,
-        username: comment.user.username,
-        display_name: comment.user.display_name
-      }
-    }
-  end
+  
 end
