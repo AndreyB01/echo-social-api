@@ -18,11 +18,17 @@ class Post < ApplicationRecord
 
   after_commit :extract_hashtags, on: [:create, :update]
   after_commit :extract_mentions, on: [:create, :update]
+  after_create_commit :broadcast_to_feed
+  after_create_commit :broadcast_post
 
   HASHTAG_REGEX = /#\w+/i
   MENTION_REGEX = /@\w+/i
 
   private
+
+  def broadcast_to_feed
+    BroadcastFeedJob.perform_later(self)
+  end
 
   def extract_hashtags
     tags = body.scan(HASHTAG_REGEX)
@@ -52,5 +58,8 @@ class Post < ApplicationRecord
 
       post_mentions.find_or_create_by!(user: mentioned_user)
     end
+  end
+  def broadcast_post
+    BroadcastPostJob.perform_later(post: self)
   end
 end
