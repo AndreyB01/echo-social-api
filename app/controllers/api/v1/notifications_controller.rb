@@ -22,7 +22,7 @@ class Api::V1::NotificationsController < ApplicationController
 
   def read
     notification = current_user.notifications.find(params[:id])
-    notification.update!(read_at: Time.current)
+    ReadNotificationService.call(notification: notification)
 
     render json: { message: "Notification marked as read" }
   end
@@ -31,6 +31,8 @@ class Api::V1::NotificationsController < ApplicationController
     current_user.notifications
                 .where(read_at: nil)
                 .update_all(read_at: Time.current)
+
+    UnreadNotificationsBroadcastService.call(user: current_user)
 
     render json: { message: "All notifications marked as read" }
   end
