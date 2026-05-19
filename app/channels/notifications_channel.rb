@@ -1,9 +1,7 @@
 class NotificationsChannel < ApplicationCable::Channel
   def subscribed
-    stream_for current_user
-  end
+    reject unless current_user
 
-  def unsubscribed
-    stop_all_streams
+    stream_for current_user
   end
 end

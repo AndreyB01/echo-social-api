@@ -11,17 +11,8 @@ module ApplicationCable
     def find_verified_user
       token = request.params[:token]
 
-      reject_unauthorized_connection unless token
-
-      decoded = Jwt::Decoder.call(token)
-
-      reject_unauthorized_connection unless decoded
-
-      user = User.find_by(id: decoded["user_id"])
-
-      reject_unauthorized_connection unless user
-
-      user
+      payload = Jwt::Decoder.call(token)
+      User.find(payload[:user_id])
     rescue StandardError
       reject_unauthorized_connection
     end

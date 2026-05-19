@@ -43,12 +43,12 @@ RSpec.describe LikePostService do
         user:
       )
 
-      expect {
-        described_class.new(
-          user:,
-          post: own_post
-        ).call
-      }.not_to change(Notification, :count)
+          expect {
+      described_class.new(
+        user:,
+        post:
+      ).call
+    }.to have_enqueued_job(CreateNotificationJob)
     end
   end
 end
