@@ -4,7 +4,24 @@ RSpec.describe "Notifications API", type: :request do
   let!(:user) { create(:user) }
   let!(:actor) { create(:user) }
   let!(:post) { create(:post, user: user) }
-  let!(:like) { create(:like, user: actor, post: post) }
+
+  let!(:like) do
+    create(
+      :like,
+      user: actor,
+      post: post
+    )
+  end
+
+  let!(:notification) do
+    create(
+      :notification,
+      user: user,
+      actor: actor,
+      notification_type: "like",
+      notifiable: like
+    )
+  end
 
   let(:token) do
     Jwt::Encoder.call(user_id: user.id)
@@ -17,12 +34,24 @@ RSpec.describe "Notifications API", type: :request do
   end
 
   describe "GET /api/v1/notifications" do
-    before { get "/api/v1/notifications", headers: headers }
+    before do
+      get "/api/v1/notifications",
+          headers: headers
+    end
 
     it "returns notifications" do
       expect(response).to have_http_status(:ok)
+
       json = JSON.parse(response.body)
-      expect(json["data"].first).to include("id", "type", "read", "created_at", "actor")
+
+      expect(json["data"].first)
+        .to include(
+          "id",
+          "type",
+          "read",
+          "created_at",
+          "actor"
+        )
     end
   end
 end
