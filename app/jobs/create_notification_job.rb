@@ -11,9 +11,8 @@ class CreateNotificationJob < ApplicationJob
       notifiable: notifiable
     )
 
-    NotificationsChannel.broadcast_to(
-      user,
-      NotificationSerializer.render(notification)
+    NotificationBroadcastService.call(
+      notification: notification
     )
   end
 end

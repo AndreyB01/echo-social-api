@@ -10,6 +10,10 @@ class NotificationSerializer
     }
   end
 
+  def self.render_as_hash(notification)
+    render(notification)
+  end
+
   def self.render_collection(notifications)
     notifications.map { |notification| render(notification) }
   end
