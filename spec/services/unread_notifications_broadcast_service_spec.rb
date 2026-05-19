@@ -19,11 +19,12 @@ RSpec.describe UnreadNotificationsBroadcastService do
         .with(
           user,
           hash_including(
-            type: "notifications.unread_count",
+            event: "notifications.unread_count",
             data: {
-              count: 3
-            }
-          )
+                count: 3
+            },
+            timestamp: anything
+            )
         )
 
       described_class.call(user: user)

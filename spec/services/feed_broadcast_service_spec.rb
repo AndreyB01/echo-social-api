@@ -2,29 +2,26 @@ require "rails_helper"
 
 RSpec.describe FeedBroadcastService do
   describe ".call" do
+    let!(:user) { create(:user) }
     let!(:author) { create(:user) }
-    let!(:follower) { create(:user) }
 
     let!(:post) do
-      create(
-        :post,
-        user: author
-      )
+      create(:post, user: author)
     end
 
     it "broadcasts post into follower stream" do
       expect(ActionCable.server)
         .to receive(:broadcast)
         .with(
-          "feed_#{follower.id}",
+          "feed:#{user.to_gid_param}",
           hash_including(
-            type: "new_post"
+            event: "feed.post_created"
           )
         )
 
       described_class.call(
-        post: post,
-        follower: follower
+        user: user,
+        post: post
       )
     end
   end

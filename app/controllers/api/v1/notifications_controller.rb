@@ -28,14 +28,14 @@ class Api::V1::NotificationsController < ApplicationController
   end
 
   def read_all
-    current_user.notifications
-                .where(read_at: nil)
-                .update_all(read_at: Time.current)
+  ReadAllNotificationsService.call(
+    user: current_user
+  )
 
-    UnreadNotificationsBroadcastService.call(user: current_user)
-
-    render json: { message: "All notifications marked as read" }
-  end
+  render json: {
+    message: "All notifications marked as read"
+  }
+end
 
   def unread_count
     count = current_user.notifications

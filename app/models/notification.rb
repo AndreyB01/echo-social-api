@@ -20,24 +20,16 @@ class Notification < ApplicationRecord
 
   scope :unread, -> { where(read_at: nil) }
 
-  after_create_commit :broadcast_notification
+  
+  after_create_commit :broadcast_unread_count
 
   private
 
-  def broadcast_notification
-    NotificationsChannel.broadcast_to(
-      user,
-      {
-        id: id,
-        type: notification_type,
-        read: read_at.present?,
-        created_at: created_at,
-        actor: {
-          id: actor.id,
-          username: actor.username,
-          display_name: actor.display_name
-        }
-      }
+  
+
+  def broadcast_unread_count
+    UnreadNotificationsBroadcastService.call(
+      user: user
     )
   end
 end

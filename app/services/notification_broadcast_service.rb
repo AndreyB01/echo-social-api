@@ -7,9 +7,9 @@ class NotificationBroadcastService
   end
 
   def self.payload(notification)
-    {
-      type: "notification.created",
-      data: NotificationSerializer.render_as_hash(notification)
-    }
+    RealtimeEventSerializer.render(
+      event: "notification.created",
+      data: NotificationSerializer.render(notification)
+    )
   end
 end

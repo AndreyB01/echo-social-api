@@ -30,11 +30,11 @@ RSpec.describe BroadcastPostJob, type: :job do
     it "broadcasts post to followers" do
       expect(FeedBroadcastService)
         .to receive(:call)
-        .with(post: post, follower: follower_1)
+        .with(user: follower_1, post: post)
 
       expect(FeedBroadcastService)
         .to receive(:call)
-        .with(post: post, follower: follower_2)
+        .with(user: follower_2, post: post)
 
       described_class.perform_now(post: post)
     end

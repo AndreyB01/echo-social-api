@@ -11,6 +11,10 @@ class CreateNotificationJob < ApplicationJob
       notifiable: notifiable
     )
 
+    BroadcastNotificationJob.perform_later(
+      notification
+    )
+
     NotificationBroadcastService.call(
       notification: notification
     )

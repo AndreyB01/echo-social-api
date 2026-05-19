@@ -4,8 +4,8 @@ class BroadcastPostJob < ApplicationJob
   def perform(post:)
     post.user.followers.find_each do |follower|
       FeedBroadcastService.call(
-        post: post,
-        follower: follower
+        user: follower,
+        post: post
       )
     end
   end
