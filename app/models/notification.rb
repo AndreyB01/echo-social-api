@@ -21,15 +21,12 @@ class Notification < ApplicationRecord
   scope :unread, -> { where(read_at: nil) }
 
   
-  after_create_commit :broadcast_unread_count
+  
+  after_create_commit :enqueue_broadcast
 
   private
 
-  
-
-  def broadcast_unread_count
-    UnreadNotificationsBroadcastService.call(
-      user: user
-    )
+  def enqueue_broadcast
+    BroadcastNotificationJob.perform_later(self)
   end
 end
