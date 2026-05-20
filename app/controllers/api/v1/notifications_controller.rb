@@ -35,7 +35,7 @@ class Api::V1::NotificationsController < ApplicationController
   render json: {
     message: "All notifications marked as read"
   }
-end
+  end
 
   def unread_count
     count = current_user.notifications

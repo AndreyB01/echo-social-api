@@ -1,0 +1,4 @@
+notification_cleanup_job:
+  cron: "0 0 * * *"
+  class: "NotificationCleanupJob"
+  queue: default

@@ -9,3 +9,9 @@ Sidekiq.configure_client do |config|
     url: ENV.fetch("REDIS_URL", "redis://redis:6379/0")
   }
 end
+
+schedule_file = "config/sidekiq_schedule.yml"
+
+if File.exist?(schedule_file)
+  Sidekiq::Cron::Job.load_from_hash YAML.load_file(schedule_file)
+end
