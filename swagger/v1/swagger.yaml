@@ -1,0 +1,39 @@
+---
+openapi: 3.0.1
+info:
+  title: API V1
+  version: v1
+paths:
+  "/api/v1/notifications":
+    get:
+      summary: List notifications
+      tags:
+      - Notifications
+      parameters:
+      - name: Authorization
+        in: header
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: notifications found
+  "/api/v1/notifications/unread_count":
+    get:
+      summary: Unread notifications count
+      tags:
+      - Notifications
+      parameters:
+      - name: Authorization
+        in: header
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: count returned
+servers:
+- url: https://{defaultHost}
+  variables:
+    defaultHost:
+      default: www.example.com

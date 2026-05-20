@@ -54,6 +54,7 @@ group :development, :test do
   gem "faker"
   gem "bullet"
   gem "shoulda-matchers"
+  gem "rswag"
 end
 
 group :development do
