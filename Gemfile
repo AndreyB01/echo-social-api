@@ -43,7 +43,6 @@ gem "sidekiq"
 gem "sidekiq-cron"
 gem "kaminari"
 gem "rack-attack"
-gem "dotenv-rails"
 gem "lograge"
 
 group :development, :test do
@@ -52,6 +51,7 @@ group :development, :test do
   gem "rspec-rails"
   gem "factory_bot_rails"
   gem "faker"
+  gem 'dotenv-rails'
   gem "bullet"
   gem "shoulda-matchers"
   gem "rswag"
