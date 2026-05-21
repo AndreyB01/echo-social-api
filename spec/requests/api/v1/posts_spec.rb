@@ -17,7 +17,6 @@ RSpec.describe "Posts API", type: :request do
   describe "GET /api/v1/posts" do
     it "returns posts" do
       get "/api/v1/posts", headers: headers
-      puts response.body
 
       expect(response).to have_http_status(:ok)
       json = JSON.parse(response.body)

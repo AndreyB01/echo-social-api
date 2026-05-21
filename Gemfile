@@ -55,6 +55,7 @@ group :development, :test do
   gem "bullet"
   gem "shoulda-matchers"
   gem "rswag"
+  gem 'simplecov', require: false
 end
 
 group :development do

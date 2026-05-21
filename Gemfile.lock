@@ -104,6 +104,7 @@ GEM
       irb (~> 1.10)
       reline (>= 0.3.8)
     diff-lcs (1.6.2)
+    docile (1.4.1)
     dotenv (3.2.0)
     dotenv-rails (3.2.0)
       dotenv (= 3.2.0)
@@ -320,6 +321,12 @@ GEM
       fugit (~> 1.8, >= 1.11.1)
       globalid (>= 1.0.1)
       sidekiq (>= 6.5.0)
+    simplecov (0.22.0)
+      docile (~> 1.1)
+      simplecov-html (~> 0.11)
+      simplecov_json_formatter (~> 0.1)
+    simplecov-html (0.13.2)
+    simplecov_json_formatter (0.1.4)
     stringio (3.2.0)
     thor (1.5.0)
     timeout (0.6.1)
@@ -368,6 +375,7 @@ DEPENDENCIES
   shoulda-matchers
   sidekiq
   sidekiq-cron
+  simplecov
   tzinfo-data
 
 RUBY VERSION
