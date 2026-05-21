@@ -6,10 +6,7 @@ RSpec.describe 'Notifications API', type: :request, swagger_doc: 'v1/swagger.yam
       tags 'Notifications'
       produces 'application/json'
 
-      parameter name: :Authorization,
-                in: :header,
-                type: :string,
-                required: true
+      security [ bearerAuth: [] ]
 
       response '200', 'notifications found' do
         let!(:user) { create(:user) }
@@ -40,10 +37,7 @@ RSpec.describe 'Notifications API', type: :request, swagger_doc: 'v1/swagger.yam
       tags 'Notifications'
       produces 'application/json'
 
-      parameter name: :Authorization,
-                in: :header,
-                type: :string,
-                required: true
+      security [ bearerAuth: [] ]
 
       response '200', 'count returned' do
         let!(:user) { create(:user) }

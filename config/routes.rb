@@ -4,6 +4,7 @@ Rails.application.routes.draw do
   mount Rswag::Api::Engine => '/api-docs'
   mount ActionCable.server => "/cable"
   mount Sidekiq::Web => "/sidekiq"
+  get "/healthz", to: "health#index"
   
   namespace :api do
     namespace :v1 do
