@@ -645,6 +645,36 @@
         ],
         "branches": {}
       },
+      "/app/app/controllers/api/v1/users_controller.rb": {
+        "lines": [
+          0,
+          0,
+          null,
+          0,
+          0,
+          null,
+          0,
+          0,
+          0,
+          null,
+          0,
+          0,
+          0,
+          0,
+          null,
+          0,
+          null,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "branches": {}
+      },
       "/app/app/controllers/application_controller.rb": {
         "lines": [
           0,
@@ -1813,6 +1843,6 @@
         "branches": {}
       }
     },
-    "timestamp": 1779435912
+    "timestamp": 1779438705
   }
 }

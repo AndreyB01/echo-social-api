@@ -49,3 +49,19 @@ paths:
       responses:
         '200':
           description: count returned
+  "/api/v1/users/search":
+    get:
+      summary: Search users
+      tags:
+      - Users
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: query
+        in: query
+        description: Search query
+        schema:
+          type: string
+      responses:
+        '200':
+          description: users found

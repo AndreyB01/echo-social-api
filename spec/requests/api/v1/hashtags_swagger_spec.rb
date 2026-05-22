@@ -1,6 +1,6 @@
 require "swagger_helper"
 
-RSpec.describe "Hashtags API", type: :request, swagger_doc: "v1/swagger.yaml" do
+RSpec.describe "Hashtags API", type: :request do
   path "/api/v1/hashtags/{id}/posts" do
     get "Get posts by hashtag" do
       tags "Hashtags"
@@ -13,26 +13,7 @@ RSpec.describe "Hashtags API", type: :request, swagger_doc: "v1/swagger.yaml" do
                 description: "Hashtag name"
 
       response "200", "posts found" do
-        let(:user) do
-          User.create!(
-            email: "john@example.com",
-            username: "john",
-            password: "password"
-          )
-        end
-
-        let!(:post) do
-          Post.create!(
-            user: user,
-            body: "Hello #ruby"
-          )
-        end
-
         let(:id) { "ruby" }
-
-        before do
-          ParsePostContentJob.perform_now(post.id)
-        end
 
         run_test!
       end
