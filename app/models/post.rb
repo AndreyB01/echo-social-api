@@ -16,49 +16,22 @@ class Post < ApplicationRecord
             presence: true,
             length: { maximum: 280 }
 
-  after_commit :extract_hashtags, on: [:create, :update]
-  after_commit :extract_mentions, on: [:create, :update]
+  
   after_create_commit :broadcast_to_feed
   after_create_commit :broadcast_post
-
-  HASHTAG_REGEX = /#\w+/i
-  MENTION_REGEX = /@\w+/i
+  after_commit :enqueue_content_parsing, on: %i[create update]
+  
 
   private
+
+  def enqueue_content_parsing
+    ParsePostContentJob.perform_later(id)
+  end
 
   def broadcast_to_feed
     BroadcastFeedJob.perform_later(self)
   end
 
-  def extract_hashtags
-    tags = body.scan(HASHTAG_REGEX)
-               .map { |tag| tag.delete("#").downcase }
-               .uniq
-
-    hashtags.clear
-
-    tags.each do |tag_name|
-      hashtag = Hashtag.find_or_create_by!(name: tag_name)
-
-      post_hashtags.find_or_create_by!(hashtag: hashtag)
-    end
-  end
-
-  def extract_mentions
-    usernames = body.scan(MENTION_REGEX)
-                    .map { |mention| mention.delete("@").downcase }
-                    .uniq
-
-    mentioned_users.clear
-
-    usernames.each do |username|
-      mentioned_user = User.find_by(username: username)
-
-      next unless mentioned_user
-
-      post_mentions.find_or_create_by!(user: mentioned_user)
-    end
-  end
   def broadcast_post
     BroadcastPostJob.perform_later(post: self)
   end
