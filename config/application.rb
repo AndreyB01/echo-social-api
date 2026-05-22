@@ -8,6 +8,7 @@ Bundler.require(*Rails.groups)
 
 module Echo
   class Application < Rails::Application
+    config.middleware.use Rack::Attack
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 7.1
     config.active_job.queue_adapter = :sidekiq
