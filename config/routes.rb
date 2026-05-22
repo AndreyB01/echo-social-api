@@ -12,7 +12,8 @@ Rails.application.routes.draw do
     namespace :v1 do
       get "feed", to: "feed#index"
       get "users/search", to: "users#search"
-      
+      get "search", to: "search#index"
+
       namespace :auth do
         post :register, to: "registrations#create"
         post :login, to: "sessions#create"
