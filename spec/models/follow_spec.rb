@@ -9,10 +9,19 @@ RSpec.describe Follow, type: :model do
   end
 
   describe "validations" do
-    it do
-      should validate_uniqueness_of(:follower_id)
-        .scoped_to(:followed_id)
-    end
+  subject do
+    create(
+      :follow,
+      follower: create(:user),
+      followed: create(:user),
+      status: :accepted
+    )
+  end
+
+  it do
+    should validate_uniqueness_of(:follower_id)
+      .scoped_to(:followed_id)
+  end
   end
 
   describe "custom validations" do
@@ -27,6 +36,36 @@ RSpec.describe Follow, type: :model do
       expect(follow).not_to be_valid
       expect(follow.errors[:followed_id])
         .to include("cannot follow yourself")
+    end
+  end
+
+  describe "status assignment" do
+    let(:follower) { create(:user) }
+
+    context "when account is public" do
+      let(:followed) { create(:user, is_private: false) }
+
+      it "sets status to accepted" do
+        follow = described_class.create!(
+          follower: follower,
+          followed: followed
+        )
+
+        expect(follow.status).to eq("accepted")
+      end
+    end
+
+    context "when account is private" do
+      let(:followed) { create(:user, is_private: true) }
+
+      it "sets status to pending" do
+        follow = described_class.create!(
+          follower: follower,
+          followed: followed
+        )
+
+        expect(follow.status).to eq("pending")
+      end
     end
   end
 end

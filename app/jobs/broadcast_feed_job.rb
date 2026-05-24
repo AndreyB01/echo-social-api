@@ -2,11 +2,16 @@ class BroadcastFeedJob < ApplicationJob
   queue_as :default
 
   def perform(post)
-    post.user.followers.find_each do |follower|
+    followers =
+      post.user.passive_follows
+          .accepted
+          .includes(:follower)
+
+    followers.each do |follow|
       FeedBroadcastService.call(
-          user: follower,
-          post: post
-        )
+        user: follow.follower,
+        post: post
+      )
     end
   end
 end

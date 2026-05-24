@@ -21,6 +21,18 @@ class FeedQuery
   attr_reader :user, :page, :per_page
 
   def feed_user_ids
-    user.following.pluck(:id) + [user.id]
+  followed_ids =
+    user.active_follows
+        .accepted
+        .pluck(:followed_id)
+
+  followed_ids + [user.id]
+  end
+
+  def accepted_following_ids
+    user
+      .active_follows
+      .accepted
+      .pluck(:followed_id)
   end
 end

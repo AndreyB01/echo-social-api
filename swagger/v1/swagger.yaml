@@ -19,7 +19,14 @@ paths:
       summary: Get posts by hashtag
       tags:
       - Hashtags
+      security:
+      - bearerAuth: []
       parameters:
+      - name: Authorization
+        in: header
+        required: true
+        schema:
+          type: string
       - name: id
         in: path
         description: Hashtag name

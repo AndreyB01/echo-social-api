@@ -30,6 +30,7 @@ class User < ApplicationRecord
            dependent: :destroy
 
   has_many :following,
+           -> { where(follows: { status: :accepted }) },
            through: :active_follows,
            source: :followed
 
@@ -39,6 +40,7 @@ class User < ApplicationRecord
            dependent: :destroy
 
   has_many :followers,
+           -> { where(follows: { status: :accepted }) },
            through: :passive_follows,
            source: :follower
 
@@ -62,4 +64,13 @@ class User < ApplicationRecord
   validates :display_name,
             presence: true,
             length: { maximum: 50 }
+
+  def following?(other_user)
+    active_follows.exists?(followed: other_user, status: :accepted)
+  end
+
+  def pending_follow_request?(other_user)
+    active_follows.exists?(followed: other_user, status: :pending)
+  end
+
 end
