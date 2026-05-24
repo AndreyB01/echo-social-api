@@ -13,7 +13,7 @@
       <img src="./assets/0.13.2/loading.gif" alt="loading"/>
     </div>
     <div id="wrapper" class="hide">
-      <div class="timestamp">Generated <abbr class="timeago" title="2026-05-24T04:58:56+00:00">2026-05-24T04:58:56+00:00</abbr></div>
+      <div class="timestamp">Generated <abbr class="timeago" title="2026-05-24T05:26:30+00:00">2026-05-24T05:26:30+00:00</abbr></div>
       <ul class="group_tabs"></ul>
 
       <div id="content">
@@ -22,14 +22,14 @@
     <span class="group_name">All Files</span>
     (<span class="covered_percent">
       <span class="red">
-  41.63%
+  40.73%
 </span>
 
      </span>
      covered at
      <span class="covered_strength">
        <span class="green">
-         1.06
+         1.04
        </span>
     </span> hits/line
     )
@@ -42,11 +42,11 @@
   </div>
 
   <div class="t-line-summary">
-    <b>908</b> relevant lines,
+    <b>928</b> relevant lines,
     <span class="green"><b>378</b> lines covered</span> and
-    <span class="red"><b>530</b> lines missed. </span>
+    <span class="red"><b>550</b> lines missed. </span>
     (<span class="red">
-  41.63%
+  40.73%
 </span>
 )
   </div>
@@ -193,10 +193,10 @@
           <tr class="t-file">
             <td class="strong t-file__name"><a href="#b328112ca6077589ceb675bd411c631f548bf458" class="src_link" title="app/controllers/api/v1/follows_controller.rb">app/controllers/api/v1/follows_controller.rb</a></td>
             <td class="red strong cell--number t-file__coverage">0.00 %</td>
-            <td class="cell--number">17</td>
-            <td class="cell--number">13</td>
+            <td class="cell--number">39</td>
+            <td class="cell--number">33</td>
             <td class="cell--number">0</td>
-            <td class="cell--number">13</td>
+            <td class="cell--number">33</td>
             <td class="cell--number">0.00</td>
             
           </tr>
@@ -785,14 +785,14 @@
     <span class="group_name">Controllers</span>
     (<span class="covered_percent">
       <span class="red">
-  21.87%
+  20.84%
 </span>
 
      </span>
      covered at
      <span class="covered_strength">
        <span class="red">
-         0.4
+         0.38
        </span>
     </span> hits/line
     )
@@ -805,11 +805,11 @@
   </div>
 
   <div class="t-line-summary">
-    <b>407</b> relevant lines,
+    <b>427</b> relevant lines,
     <span class="green"><b>89</b> lines covered</span> and
-    <span class="red"><b>318</b> lines missed. </span>
+    <span class="red"><b>338</b> lines missed. </span>
     (<span class="red">
-  21.87%
+  20.84%
 </span>
 )
   </div>
@@ -912,10 +912,10 @@
           <tr class="t-file">
             <td class="strong t-file__name"><a href="#b328112ca6077589ceb675bd411c631f548bf458" class="src_link" title="app/controllers/api/v1/follows_controller.rb">app/controllers/api/v1/follows_controller.rb</a></td>
             <td class="red strong cell--number t-file__coverage">0.00 %</td>
-            <td class="cell--number">17</td>
-            <td class="cell--number">13</td>
+            <td class="cell--number">39</td>
+            <td class="cell--number">33</td>
             <td class="cell--number">0</td>
-            <td class="cell--number">13</td>
+            <td class="cell--number">33</td>
             <td class="cell--number">0.00</td>
             
           </tr>
@@ -5795,9 +5795,9 @@
     
 
     <div class="t-line-summary">
-      <b>13</b> relevant lines.
+      <b>33</b> relevant lines.
       <span class="green"><b>0</b> lines covered</span> and
-      <span class="red"><b>13</b> lines missed.</span>
+      <span class="red"><b>33</b> lines missed.</span>
     </div>
 
     
@@ -5853,27 +5853,27 @@
 
             
 
-            <code class="ruby">    user_to_follow = User.find(params[:id])</code>
+            <code class="ruby">  user_to_follow = User.find(params[:id])</code>
           </li>
         </div>
       
         <div>
-          <li class="missed" data-hits="0" data-linenumber="6">
-            
-
-            
-
-            <code class="ruby">    current_user.following &lt;&lt; user_to_follow unless current_user.following.include?(user_to_follow)</code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="never" data-hits="" data-linenumber="7">
+          <li class="never" data-hits="" data-linenumber="6">
             
 
             
 
             <code class="ruby"></code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="missed" data-hits="0" data-linenumber="7">
+            
+
+            
+
+            <code class="ruby">  follow = Follow.find_or_initialize_by(</code>
           </li>
         </div>
       
@@ -5883,7 +5883,7 @@
 
             
 
-            <code class="ruby">    render json: { following: true, user_id: user_to_follow.id }</code>
+            <code class="ruby">    follower: current_user,</code>
           </li>
         </div>
       
@@ -5893,27 +5893,27 @@
 
             
 
-            <code class="ruby">  end</code>
+            <code class="ruby">    followed: user_to_follow</code>
           </li>
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="10">
+          <li class="missed" data-hits="0" data-linenumber="10">
+            
+
+            
+
+            <code class="ruby">  )</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="never" data-hits="" data-linenumber="11">
             
 
             
 
             <code class="ruby"></code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="missed" data-hits="0" data-linenumber="11">
-            
-
-            
-
-            <code class="ruby">  def destroy</code>
           </li>
         </div>
       
@@ -5923,7 +5923,7 @@
 
             
 
-            <code class="ruby">    user_to_unfollow = User.find(params[:id])</code>
+            <code class="ruby">  if follow.save</code>
           </li>
         </div>
       
@@ -5933,17 +5933,17 @@
 
             
 
-            <code class="ruby">    current_user.following.destroy(user_to_unfollow)</code>
+            <code class="ruby">    render json: {</code>
           </li>
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="14">
+          <li class="missed" data-hits="0" data-linenumber="14">
             
 
             
 
-            <code class="ruby"></code>
+            <code class="ruby">      following: follow.accepted?,</code>
           </li>
         </div>
       
@@ -5953,7 +5953,7 @@
 
             
 
-            <code class="ruby">    render json: { following: false, user_id: user_to_unfollow.id }</code>
+            <code class="ruby">      requested: follow.pending?,</code>
           </li>
         </div>
       
@@ -5963,12 +5963,232 @@
 
             
 
-            <code class="ruby">  end</code>
+            <code class="ruby">      status: follow.status,</code>
           </li>
         </div>
       
         <div>
           <li class="missed" data-hits="0" data-linenumber="17">
+            
+
+            
+
+            <code class="ruby">      user_id: user_to_follow.id</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="missed" data-hits="0" data-linenumber="18">
+            
+
+            
+
+            <code class="ruby">    }, status: :created</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="missed" data-hits="0" data-linenumber="19">
+            
+
+            
+
+            <code class="ruby">  else</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="missed" data-hits="0" data-linenumber="20">
+            
+
+            
+
+            <code class="ruby">    render json: {</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="missed" data-hits="0" data-linenumber="21">
+            
+
+            
+
+            <code class="ruby">      errors: follow.errors.full_messages</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="missed" data-hits="0" data-linenumber="22">
+            
+
+            
+
+            <code class="ruby">    }, status: :unprocessable_entity</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="missed" data-hits="0" data-linenumber="23">
+            
+
+            
+
+            <code class="ruby">  end</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="missed" data-hits="0" data-linenumber="24">
+            
+
+            
+
+            <code class="ruby">end</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="never" data-hits="" data-linenumber="25">
+            
+
+            
+
+            <code class="ruby"></code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="missed" data-hits="0" data-linenumber="26">
+            
+
+            
+
+            <code class="ruby">  def destroy</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="missed" data-hits="0" data-linenumber="27">
+            
+
+            
+
+            <code class="ruby">  follow = Follow.find_by(</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="missed" data-hits="0" data-linenumber="28">
+            
+
+            
+
+            <code class="ruby">    follower: current_user,</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="missed" data-hits="0" data-linenumber="29">
+            
+
+            
+
+            <code class="ruby">    followed_id: params[:id]</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="missed" data-hits="0" data-linenumber="30">
+            
+
+            
+
+            <code class="ruby">  )</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="never" data-hits="" data-linenumber="31">
+            
+
+            
+
+            <code class="ruby"></code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="missed" data-hits="0" data-linenumber="32">
+            
+
+            
+
+            <code class="ruby">  follow&amp;.destroy</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="never" data-hits="" data-linenumber="33">
+            
+
+            
+
+            <code class="ruby"></code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="missed" data-hits="0" data-linenumber="34">
+            
+
+            
+
+            <code class="ruby">  render json: {</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="missed" data-hits="0" data-linenumber="35">
+            
+
+            
+
+            <code class="ruby">    following: false,</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="missed" data-hits="0" data-linenumber="36">
+            
+
+            
+
+            <code class="ruby">    user_id: params[:id]</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="missed" data-hits="0" data-linenumber="37">
+            
+
+            
+
+            <code class="ruby">  }</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="missed" data-hits="0" data-linenumber="38">
+            
+
+            
+
+            <code class="ruby">end</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="missed" data-hits="0" data-linenumber="39">
             
 
             
