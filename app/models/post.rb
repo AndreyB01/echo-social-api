@@ -17,20 +17,10 @@ class Post < ApplicationRecord
             length: { maximum: 280 }
 
   scope :visible_to, ->(user) {
-  joins(:user).where(
-    "users.is_private = :public_account
-     OR users.id = :current_user_id
-     OR users.id IN (
-       SELECT followed_id
-       FROM follows
-       WHERE follower_id = :current_user_id
-       AND status = :accepted_status
-     )",
-    public_account: false,
-    current_user_id: user.id,
-    accepted_status: Follow.statuses[:accepted]
-  )
-}
+    where(
+      user_id: Follow.accepted.where(follower_id: user.id).select(:followed_id)
+    ).or(where(user_id: user.id))
+  }
 
   after_create_commit :broadcast_to_feed
   after_create_commit :broadcast_post

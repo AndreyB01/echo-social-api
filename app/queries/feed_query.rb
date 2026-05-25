@@ -9,8 +9,8 @@ class FeedQuery
 
   def call
     Post
+      .visible_to(user)
       .includes(:user, :hashtags)
-      .where(user_id: feed_user_ids)
       .order(created_at: :desc)
       .page(page)
       .per(per_page)
@@ -19,20 +19,4 @@ class FeedQuery
   private
 
   attr_reader :user, :page, :per_page
-
-  def feed_user_ids
-  followed_ids =
-    user.active_follows
-        .accepted
-        .pluck(:followed_id)
-
-  followed_ids + [user.id]
-  end
-
-  def accepted_following_ids
-    user
-      .active_follows
-      .accepted
-      .pluck(:followed_id)
-  end
 end
