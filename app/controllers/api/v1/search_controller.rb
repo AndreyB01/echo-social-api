@@ -4,6 +4,7 @@ class SearchController < ApplicationController
 before_action :authenticate_user!
 
   def index
+    Current.user = current_user
     results = SearchQuery.new(query: params[:query]).call
 
     render json: {
