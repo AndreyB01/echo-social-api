@@ -1,17 +1,23 @@
 module Api
   module V1
-    class ProfilesController < ::ApplicationController
+    class ProfilesController < Api::BaseController
       before_action :authenticate_user!
 
       def show
-        render json: {
-          data: {
-            id: current_user.id,
-            email: current_user.email,
-            username: current_user.username,
-            display_name: current_user.display_name
-          }
-        }, status: :ok
+        render_success(
+          data: serialized_user(current_user)
+        )
+      end
+
+      private
+
+      def serialized_user(user)
+        {
+          id: user.id,
+          email: user.email,
+          username: user.username,
+          display_name: user.display_name
+        }
       end
     end
   end

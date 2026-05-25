@@ -1,23 +1,21 @@
 module Api
   module V1
     module Auth
-      class SessionsController < ApplicationController
+      class SessionsController < Api::BaseController
         def create
-  tokens = ::Auth::LoginService.call(
-    email: login_params[:email],
-    password: login_params[:password]
-  )
+          tokens = ::Auth::LoginService.call(
+            email: login_params[:email],
+            password: login_params[:password]
+          )
 
-  render json: {
-    access_token: tokens[:access_token],
-    refresh_token: tokens[:refresh_token],
-    token_type: "Bearer"
-  }, status: :ok
-rescue ::Auth::LoginService::InvalidCredentialsError
-  render json: {
-    error: "Invalid credentials"
-  }, status: :unauthorized
-end
+          render_success(
+            data: {
+              access_token: tokens[:access_token],
+              refresh_token: tokens[:refresh_token],
+              token_type: "Bearer"
+            }
+          )
+        end
 
         private
 

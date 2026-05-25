@@ -2,15 +2,21 @@ module Api
   module V1
     class PostsController < ApplicationController
       before_action :authenticate_user!
-      before_action :set_post, only: %i[show update destroy]
+      before_action :set_post, only: %i[
+        show
+        update
+        destroy
+      ]
 
       def index
-        posts = Post.includes(:user, :hashtags)
-                    .order(created_at: :desc)
-                    .page(params[:page])
-                    .per(params[:per_page] || 20)
+        posts = Post.includes(
+          :user,
+          :hashtags
+        ).order(created_at: :desc)
+         .page(params[:page])
+         .per(params[:per_page] || 20)
 
-        render json: {
+        render_success(
           data: PostSerializer.render_collection(posts),
           meta: {
             current_page: posts.current_page,
@@ -19,54 +25,59 @@ module Api
             total_pages: posts.total_pages,
             total_count: posts.total_count
           }
-        }
+        )
       end
 
       def create
         post = current_user.posts.new(post_params)
 
         if post.save
-          render json: {
-            data: PostSerializer.render(post)
-          }, status: :created
+          render_success(
+            data: PostSerializer.render(post),
+            status: :created
+          )
         else
-          render json: {
-            errors: post.errors.full_messages
-          }, status: :unprocessable_entity
+          render_validation_error(post)
         end
       end
 
       def show
-        render json: {
+        render_success(
           data: PostSerializer.render(@post)
-        }, status: :ok
+        )
       end
 
       def update
         authorize(@post, :update?)
 
         if @post.update(post_params)
-          render json: {
+          render_success(
             data: PostSerializer.render(@post)
-          }, status: :ok
+          )
         else
-          render json: {
-            errors: @post.errors.full_messages
-          }, status: :unprocessable_entity
+          render_validation_error(@post)
         end
       end
 
       def destroy
         authorize(@post, :destroy?)
+
         @post.destroy
 
-        head :no_content
+        render_success(
+          data: {
+            message: "Post deleted"
+          }
+        )
       end
 
       private
 
       def set_post
-        @post = Post.includes(:user, :hashtags).find(params[:id])
+        @post = Post.includes(
+          :user,
+          :hashtags
+        ).find(params[:id])
       end
 
       def post_params

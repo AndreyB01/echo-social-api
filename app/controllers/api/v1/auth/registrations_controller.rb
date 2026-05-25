@@ -1,17 +1,16 @@
 module Api
   module V1
     module Auth
-      class RegistrationsController < ApplicationController
+      class RegistrationsController < Api::BaseController
         def create
-          user = Users::CreateService.call(user_params)
+          user = Users::CreateService.call(
+            user_params
+          )
 
-          render json: user_response(user),
-                 status: :created
-        rescue ActiveRecord::RecordInvalid => e
-          render json: {
-            errors: e.record.errors.full_messages
-          },
-                 status: :unprocessable_content
+          render_success(
+            data: serialized_user(user),
+            status: :created
+          )
         end
 
         private
@@ -27,18 +26,16 @@ module Api
           )
         end
 
-        def user_response(user)
+        def serialized_user(user)
           {
-            data: {
-              id: user.id,
-              type: "user",
-              attributes: {
-                email: user.email,
-                username: user.username,
-                display_name: user.display_name,
-                bio: user.bio,
-                created_at: user.created_at
-              }
+            id: user.id,
+            type: "user",
+            attributes: {
+              email: user.email,
+              username: user.username,
+              display_name: user.display_name,
+              bio: user.bio,
+              created_at: user.created_at
             }
           }
         end
