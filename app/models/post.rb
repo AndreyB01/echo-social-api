@@ -17,23 +17,35 @@ class Post < ApplicationRecord
             length: { maximum: 280 }
 
   scope :visible_to, ->(user) {
-  left_joins(user: :passive_follows)
-    .where(
-      users: { is_private: false }
-    )
-    .or(
-      where(users: { id: user.id })
-    )
-    .or(
-      where(
-        follows: {
-          follower_id: user.id,
-          status: Follow.statuses[:accepted]
-        }
-      )
-    )
-    .distinct
-}
+    blocker_user_ids =
+      Block.where(blocked_id: user.id)
+           .select(:blocker_id)
+
+    blocked_user_ids =
+      Block.where(blocker_id: user.id)
+           .select(:blocked_id)
+
+    visible_user_ids =
+      User
+        .left_joins(:passive_follows)
+        .where(
+          "users.is_private = :public
+          OR users.id = :current_user_id
+          OR (
+            follows.follower_id = :current_user_id
+            AND follows.status = :accepted
+          )",
+          public: false,
+          current_user_id: user.id,
+          accepted: Follow.statuses[:accepted]
+        )
+        .where.not(id: blocker_user_ids)
+        .where.not(id: blocked_user_ids)
+        .distinct
+        .select(:id)
+
+    where(user_id: visible_user_ids)
+  }
 
   after_create_commit :broadcast_to_feed
   after_create_commit :broadcast_post

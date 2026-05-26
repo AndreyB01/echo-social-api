@@ -54,6 +54,24 @@ class User < ApplicationRecord
            foreign_key: :actor_id,
            dependent: :destroy
 
+  has_many :active_blocks,
+           class_name: "Block",
+           foreign_key: :blocker_id,
+           dependent: :destroy
+
+  has_many :blocked_users,
+           through: :active_blocks,
+           source: :blocked
+
+  has_many :passive_blocks,
+           class_name: "Block",
+           foreign_key: :blocked_id,
+           dependent: :destroy
+
+  has_many :blockers,
+           through: :passive_blocks,
+           source: :blocker
+
   validates :email,
             presence: true,
             uniqueness: true
@@ -74,5 +92,4 @@ class User < ApplicationRecord
   def pending_follow_request?(other_user)
     active_follows.exists?(followed: other_user, status: :pending)
   end
-
 end
