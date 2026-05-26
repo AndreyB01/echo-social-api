@@ -10,8 +10,26 @@ module Users
 
     def call
       User.transaction do
-        User.create!(@params)
+        user = User.create!(@params)
+
+        token_data =
+          Auth::EmailConfirmationTokenGenerator.call(
+            user: user
+          )
+
+        UserMailer
+          .confirmation_email(
+            user,
+            token_data[:raw_token]
+          )
+          .deliver_later
+
+        user
       end
     end
+
+    private
+
+    attr_reader :params
   end
 end

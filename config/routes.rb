@@ -5,6 +5,7 @@ Rails.application.routes.draw do
   mount Rswag::Api::Engine => '/api-docs'
   mount ActionCable.server => "/cable"
   mount Sidekiq::Web => "/sidekiq"
+  mount LetterOpenerWeb::Engine, at: "/letters" if Rails.env.development?
 
   get "/healthz", to: "health#index"
 
@@ -18,6 +19,10 @@ Rails.application.routes.draw do
         post :register, to: "registrations#create"
         post :login, to: "sessions#create"
         post :refresh, to: "refresh#create"
+
+        get :confirm_email,
+          to: "email_confirmations#show"
+
         delete :logout, to: "logout#destroy"
         delete :logout_all, to: "logout#destroy_all"
       end

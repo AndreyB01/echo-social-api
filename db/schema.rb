@@ -10,19 +10,10 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_05_22_163514) do
+ActiveRecord::Schema[7.1].define(version: 2026_05_26_091221) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "citext"
   enable_extension "plpgsql"
-
-  create_table "bookmarks", force: :cascade do |t|
-    t.bigint "user_id", null: false
-    t.bigint "post_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["post_id"], name: "index_bookmarks_on_post_id"
-    t.index ["user_id"], name: "index_bookmarks_on_user_id"
-  end
 
   create_table "comments", force: :cascade do |t|
     t.text "body"
@@ -123,6 +114,20 @@ ActiveRecord::Schema[7.1].define(version: 2026_05_22_163514) do
     t.index ["user_id"], name: "index_refresh_tokens_on_user_id"
   end
 
+  create_table "user_sessions", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "refresh_token_digest", null: false
+    t.string "user_agent"
+    t.string "ip_address"
+    t.datetime "expires_at", null: false
+    t.datetime "revoked_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["expires_at"], name: "index_user_sessions_on_expires_at"
+    t.index ["refresh_token_digest"], name: "index_user_sessions_on_refresh_token_digest", unique: true
+    t.index ["user_id"], name: "index_user_sessions_on_user_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.citext "email", null: false
     t.citext "username", null: false
@@ -132,14 +137,16 @@ ActiveRecord::Schema[7.1].define(version: 2026_05_22_163514) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.boolean "is_private", default: false, null: false
+    t.string "confirmation_token_digest"
+    t.datetime "confirmation_sent_at"
+    t.datetime "confirmed_at"
+    t.index ["confirmation_token_digest"], name: "index_users_on_confirmation_token_digest", unique: true
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["username"], name: "index_users_on_username", unique: true
     t.check_constraint "char_length(username::text) <= 30", name: "users_username_max_length_check"
     t.check_constraint "char_length(username::text) >= 3", name: "users_username_length_check"
   end
 
-  add_foreign_key "bookmarks", "posts"
-  add_foreign_key "bookmarks", "users"
   add_foreign_key "comments", "posts"
   add_foreign_key "comments", "users"
   add_foreign_key "follows", "users", column: "followed_id"
@@ -154,4 +161,5 @@ ActiveRecord::Schema[7.1].define(version: 2026_05_22_163514) do
   add_foreign_key "post_mentions", "users"
   add_foreign_key "posts", "users"
   add_foreign_key "refresh_tokens", "users"
+  add_foreign_key "user_sessions", "users"
 end

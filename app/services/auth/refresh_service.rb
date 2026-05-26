@@ -11,39 +11,49 @@ module Auth
     end
 
     def call
-      token_digest =
-        Auth::RefreshTokenGenerator.digest_token(
+      refresh_token_digest =
+        Digest::SHA256.hexdigest(
           refresh_token
         )
 
-      stored_token =
-        RefreshToken.active.find_by(
-          token_digest: token_digest
+      session =
+        UserSession.find_by(
+          refresh_token_digest:
+            refresh_token_digest
         )
 
-      raise InvalidTokenError unless stored_token
+      raise InvalidTokenError unless session
 
-      RefreshToken.transaction do
-        stored_token.update!(
-          revoked_at: Time.current
+      raise InvalidTokenError if session.revoked_at.present?
+
+      raise InvalidTokenError if session.expires_at.past?
+
+      new_refresh_token =
+        SecureRandom.hex(64)
+
+      new_refresh_digest =
+        Digest::SHA256.hexdigest(
+          new_refresh_token
         )
 
-        new_access_token =
-          Jwt::Encoder.call(
-            user_id: stored_token.user.id
-          )
+      session.update!(
+        refresh_token_digest:
+          new_refresh_digest
+      )
 
-        new_refresh_token_data =
-          Auth::RefreshTokenGenerator.call(
-            user: stored_token.user
-          )
+      access_token =
+        Jwt::AccessTokenEncoder.call(
+          {
+            user_id: session.user_id,
+            session_id: session.id
+          }
+        )
 
-        {
-          access_token: new_access_token,
-          refresh_token:
-            new_refresh_token_data[:raw_token]
-        }
-      end
+      {
+        access_token: access_token,
+        refresh_token: new_refresh_token,
+        session: session
+      }
     end
 
     private

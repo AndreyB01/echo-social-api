@@ -29,6 +29,8 @@ class User < ApplicationRecord
            foreign_key: :follower_id,
            dependent: :destroy
 
+  has_many :user_sessions, dependent: :destroy
+
   has_many :following,
            -> { where(follows: { status: :accepted }) },
            through: :active_follows,

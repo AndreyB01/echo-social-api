@@ -1,6 +1,6 @@
 module Auth
   class LogoutService
-    class InvalidTokenError < StandardError; end
+    class InvalidSessionError < StandardError; end
 
     def self.call(refresh_token:)
       new(refresh_token).call
@@ -11,21 +11,24 @@ module Auth
     end
 
     def call
-      token_digest =
-        Auth::RefreshTokenGenerator.digest_token(
+      refresh_token_digest =
+        Digest::SHA256.hexdigest(
           refresh_token
         )
 
-      stored_token =
-        RefreshToken.active.find_by(
-          token_digest: token_digest
+      session =
+        UserSession.find_by(
+          refresh_token_digest:
+            refresh_token_digest
         )
 
-      raise InvalidTokenError unless stored_token
+      raise InvalidSessionError unless session
 
-      stored_token.update!(
+      session.update!(
         revoked_at: Time.current
       )
+
+      true
     end
 
     private

@@ -55,6 +55,7 @@ group :development, :test do
   gem "bullet"
   gem "shoulda-matchers"
   gem "rswag"
+  gem "letter_opener_web"
   gem 'simplecov', require: false
 end
 
