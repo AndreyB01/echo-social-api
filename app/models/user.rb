@@ -72,6 +72,20 @@ class User < ApplicationRecord
            through: :passive_blocks,
            source: :blocker
 
+  has_many :active_mutes,
+           class_name: "Mute",
+           foreign_key: :muter_id,
+           dependent: :destroy
+
+  has_many :muted_users,
+           through: :active_mutes,
+           source: :muted
+
+  has_many :passive_mutes,
+           class_name: "Mute",
+           foreign_key: :muted_id,
+           dependent: :destroy
+
   validates :email,
             presence: true,
             uniqueness: true

@@ -48,6 +48,8 @@ Rails.application.routes.draw do
           patch "follow/reject", to: "follows#reject"
           post "block", to: "blocks#create"
           delete "block", to: "blocks#destroy"
+          post "mute", to: "mutes#create"
+          delete "mute", to: "mutes#destroy"
         end
       end
 

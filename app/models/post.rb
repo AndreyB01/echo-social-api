@@ -25,22 +25,29 @@ class Post < ApplicationRecord
       Block.where(blocker_id: user.id)
            .select(:blocked_id)
 
+    muted_user_ids =
+      Mute.where(muter_id: user.id)
+          .select(:muted_id)
+
     visible_user_ids =
       User
         .left_joins(:passive_follows)
         .where(
-          "users.is_private = :public
-          OR users.id = :current_user_id
-          OR (
-            follows.follower_id = :current_user_id
-            AND follows.status = :accepted
-          )",
+          <<~SQL,
+            users.is_private = :public
+            OR users.id = :current_user_id
+            OR (
+              follows.follower_id = :current_user_id
+              AND follows.status = :accepted
+            )
+          SQL
           public: false,
           current_user_id: user.id,
           accepted: Follow.statuses[:accepted]
         )
         .where.not(id: blocker_user_ids)
         .where.not(id: blocked_user_ids)
+        .where.not(id: muted_user_ids)
         .distinct
         .select(:id)
 
