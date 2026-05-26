@@ -46,6 +46,8 @@ Rails.application.routes.draw do
           delete "follow", to: "follows#destroy"
           patch "follow/accept", to: "follows#accept"
           patch "follow/reject", to: "follows#reject"
+          post "block", to: "blocks#create"
+          delete "block", to: "blocks#destroy"
         end
       end
 
