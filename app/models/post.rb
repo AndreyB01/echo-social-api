@@ -17,10 +17,23 @@ class Post < ApplicationRecord
             length: { maximum: 280 }
 
   scope :visible_to, ->(user) {
-    where(
-      user_id: Follow.accepted.where(follower_id: user.id).select(:followed_id)
-    ).or(where(user_id: user.id))
-  }
+  left_joins(user: :passive_follows)
+    .where(
+      users: { is_private: false }
+    )
+    .or(
+      where(users: { id: user.id })
+    )
+    .or(
+      where(
+        follows: {
+          follower_id: user.id,
+          status: Follow.statuses[:accepted]
+        }
+      )
+    )
+    .distinct
+}
 
   after_create_commit :broadcast_to_feed
   after_create_commit :broadcast_post

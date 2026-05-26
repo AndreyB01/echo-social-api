@@ -10,7 +10,8 @@ module Api
 
       def index
         paginator = Pagination::CursorPaginator.new(
-          Post.includes(:user, :hashtags),
+          Post.visible_to(current_user)
+              .includes(:user, :hashtags),
           cursor: params[:cursor],
           limit: params[:limit]
         )
@@ -71,11 +72,11 @@ module Api
       private
 
       def set_post
-        @post = Post.includes(
-          :user,
-          :hashtags
-        ).find(params[:id])
-      end
+            @post = Post
+                      .visible_to(current_user)
+                      .includes(:user, :hashtags)
+                      .find(params[:id])
+      end 
 
       def post_params
         params.require(:post).permit(:body)
