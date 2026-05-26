@@ -34,7 +34,6 @@ Rails.application.routes.draw do
         resources :comments, only: [:index, :create, :destroy]
       end
 
-      
       resources :hashtags, only: [] do
         member do
           get :posts
@@ -45,8 +44,12 @@ Rails.application.routes.draw do
         member do
           post "follow", to: "follows#create"
           delete "follow", to: "follows#destroy"
+          patch "follow/accept", to: "follows#accept"
+          patch "follow/reject", to: "follows#reject"
         end
       end
+
+      resources :follow_requests, only: [:index]
 
       resources :notifications, only: [:index] do
         member do
