@@ -2,8 +2,10 @@ class UserSerializer
   def self.render(user)
     {
       id: user.id,
+      email: user.email,
       username: user.username,
-      display_name: user.display_name
+      display_name: user.display_name,
+      bio: user.bio
     }
   end
 

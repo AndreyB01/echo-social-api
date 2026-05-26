@@ -5,19 +5,8 @@ module Api
 
       def show
         render_success(
-          data: serialized_user(current_user)
+          data: UserSerializer.render(current_user)
         )
-      end
-
-      private
-
-      def serialized_user(user)
-        {
-          id: user.id,
-          email: user.email,
-          username: user.username,
-          display_name: user.display_name
-        }
       end
     end
   end
