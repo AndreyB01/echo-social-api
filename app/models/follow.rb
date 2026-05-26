@@ -20,6 +20,10 @@ class Follow < ApplicationRecord
 
   validate :cannot_follow_self
 
+  after_create_commit :increment_counters_if_accepted
+  after_destroy_commit :decrement_counters_if_accepted
+  after_update_commit :update_counters_on_status_change
+
   private
 
   def cannot_follow_self
@@ -39,5 +43,33 @@ class Follow < ApplicationRecord
       else
         :accepted
       end
+  end
+
+  def increment_counters_if_accepted
+    return unless accepted?
+
+    follower.increment!(:following_count)
+    followed.increment!(:followers_count)
+  end
+
+  def decrement_counters_if_accepted
+    return unless status_before_last_save == "accepted"
+
+    follower.decrement!(:following_count)
+    followed.decrement!(:followers_count)
+  end
+
+  def update_counters_on_status_change
+    return unless saved_change_to_status?
+
+    previous_status, current_status = saved_change_to_status
+
+    if previous_status == "pending" && current_status == "accepted"
+      follower.increment!(:following_count)
+      followed.increment!(:followers_count)
+    elsif previous_status == "accepted" && current_status != "accepted"
+      follower.decrement!(:following_count)
+      followed.decrement!(:followers_count)
+    end
   end
 end
