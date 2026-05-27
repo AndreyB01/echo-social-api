@@ -1,5 +1,14 @@
 class Post < ApplicationRecord
   belongs_to :user
+  has_many_attached :images
+
+  MAX_IMAGES = 4
+  MAX_IMAGE_SIZE = 5.megabytes
+  ALLOWED_IMAGE_TYPES = %w[
+    image/jpeg
+    image/png
+    image/webp
+  ].freeze
 
   has_many :likes, dependent: :destroy
   has_many :liked_by_users, through: :likes, source: :user
@@ -15,6 +24,8 @@ class Post < ApplicationRecord
   validates :body,
             presence: true,
             length: { maximum: 280 }
+
+  validate :validate_images
 
   scope :visible_to, ->(user) {
     blocker_user_ids =
@@ -70,5 +81,23 @@ class Post < ApplicationRecord
 
   def broadcast_post
     BroadcastPostJob.perform_later(post: self)
+  end
+
+  def validate_images
+    return unless images.attached?
+
+    if images.count > MAX_IMAGES
+      errors.add(:images, "maximum is 4 images")
+    end
+
+    images.each do |image|
+      unless ALLOWED_IMAGE_TYPES.include?(image.content_type)
+        errors.add(:images, "must be JPEG, PNG, or WEBP")
+      end
+
+      if image.byte_size > MAX_IMAGE_SIZE
+        errors.add(:images, "size must be less than 5MB")
+      end
+    end
   end
 end

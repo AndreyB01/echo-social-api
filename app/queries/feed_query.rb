@@ -12,28 +12,17 @@ class FeedQuery
       user_id: user.id,
       cursor: cursor
     ) do
-      result = Pagination::CursorPaginator.new(
+      Pagination::CursorPaginator.new(
         Post.visible_to(user)
-            .includes(:user, :hashtags)
+            .includes(:user, :hashtags, images_attachments: :blob)
             .order(created_at: :desc),
         cursor: cursor,
         limit: limit
       ).call
-
-      {
-        records: serialize_records(result[:records]),
-        meta: result[:meta]
-      }
     end
   end
 
   private
 
   attr_reader :user, :cursor, :limit
-
-  def serialize_records(records)
-    records.map do |post|
-      PostSerializer.new(post).as_json
-    end
-  end
 end

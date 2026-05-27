@@ -71,12 +71,12 @@ module Api
       def set_post
         @post = Post
                   .visible_to(current_user)
-                  .includes(:user, :hashtags)
+                  .includes(:user, :hashtags, images_attachments: :blob)
                   .find(params[:id])
       end
 
       def post_params
-        params.require(:post).permit(:body)
+        params.require(:post).permit(:body, images: [])
       end
     end
   end
