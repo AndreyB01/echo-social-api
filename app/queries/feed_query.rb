@@ -10,7 +10,8 @@ class FeedQuery
   def call
     Pagination::CursorPaginator.new(
       Post.visible_to(user)
-          .includes(:user, :hashtags),
+          .includes(:user, :hashtags)
+          .order(created_at: :desc),
       cursor: cursor,
       limit: limit
     ).call
