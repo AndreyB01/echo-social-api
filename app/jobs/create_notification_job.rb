@@ -3,20 +3,13 @@ class CreateNotificationJob < ApplicationJob
 
   def perform(user:, actor:, notification_type:, notifiable:)
     return if user == actor
+    return if Mute.exists?(muter: user, muted: actor)
 
-    notification = Notification.create!(
+    Notification.find_or_create_by!(
       user: user,
       actor: actor,
       notification_type: notification_type,
       notifiable: notifiable
-    )
-
-    BroadcastNotificationJob.perform_later(
-      notification
-    )
-
-    NotificationBroadcastService.call(
-      notification: notification
     )
   end
 end
