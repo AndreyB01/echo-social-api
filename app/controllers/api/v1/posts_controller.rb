@@ -9,14 +9,11 @@ module Api
       ]
 
       def index
-        paginator = Pagination::CursorPaginator.new(
-          Post.visible_to(current_user)
-              .includes(:user, :hashtags),
+        result = FeedQuery.new(
+          user: current_user,
           cursor: params[:cursor],
           limit: params[:limit]
-        )
-
-        result = paginator.call
+        ).call
 
         render_success(
           data: PostSerializer.render_collection(
@@ -72,11 +69,11 @@ module Api
       private
 
       def set_post
-            @post = Post
-                      .visible_to(current_user)
-                      .includes(:user, :hashtags)
-                      .find(params[:id])
-      end 
+        @post = Post
+                  .visible_to(current_user)
+                  .includes(:user, :hashtags)
+                  .find(params[:id])
+      end
 
       def post_params
         params.require(:post).permit(:body)
