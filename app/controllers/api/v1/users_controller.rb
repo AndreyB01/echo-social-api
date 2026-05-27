@@ -2,10 +2,20 @@ class Api::V1::UsersController < ApplicationController
   before_action :authenticate_user!
 
   def search
-    query = params[:query].to_s.downcase.strip
+    query = params[:query].to_s.strip
 
     users = User
-              .where("LOWER(username) LIKE ?", "%#{query}%")
+              .where("similarity(username, ?) > 0.2", query)
+              .order(
+                Arel.sql(
+                  sanitize_sql_array(
+                    [
+                      "similarity(username, ?) DESC",
+                      query
+                    ]
+                  )
+                )
+              )
               .limit(10)
 
     render json: {

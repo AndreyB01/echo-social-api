@@ -10,9 +10,10 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_05_27_133951) do
+ActiveRecord::Schema[7.1].define(version: 2026_05_27_185354) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "citext"
+  enable_extension "pg_trgm"
   enable_extension "plpgsql"
 
   create_table "active_storage_attachments", force: :cascade do |t|
@@ -79,6 +80,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_05_27_133951) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["name"], name: "index_hashtags_on_name", unique: true
+    t.index ["name"], name: "index_hashtags_on_name_trgm", opclass: :gin_trgm_ops, using: :gin
   end
 
   create_table "likes", force: :cascade do |t|
@@ -145,6 +147,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_05_27_133951) do
     t.datetime "updated_at", null: false
     t.integer "likes_count", default: 0, null: false
     t.integer "comments_count", default: 0, null: false
+    t.index ["body"], name: "index_posts_on_body_trgm", opclass: :gin_trgm_ops, using: :gin
     t.index ["created_at"], name: "index_posts_on_created_at"
     t.index ["user_id", "created_at"], name: "index_posts_on_user_id_and_created_at"
     t.index ["user_id"], name: "index_posts_on_user_id"
@@ -194,6 +197,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_05_27_133951) do
     t.index ["confirmation_token_digest"], name: "index_users_on_confirmation_token_digest", unique: true
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["username"], name: "index_users_on_username", unique: true
+    t.index ["username"], name: "index_users_on_username_trgm", opclass: :gin_trgm_ops, using: :gin
     t.check_constraint "char_length(username::text) <= 30", name: "users_username_max_length_check"
     t.check_constraint "char_length(username::text) >= 3", name: "users_username_length_check"
   end
