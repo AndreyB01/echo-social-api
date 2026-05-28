@@ -18,6 +18,35 @@ class Rack::Attack
   end
 
   ###
+  # Posts creation throttling
+  ###
+  throttle("posts/ip", limit: 10, period: 1.minute) do |req|
+    if req.path == "/api/v1/posts" && req.post?
+      req.ip
+    end
+  end
+
+  ###
+  # Follow throttling
+  ###
+  throttle("follows/ip", limit: 20, period: 1.minute) do |req|
+    if req.path.match?(%r{^/api/v1/users/\d+/follow$}) &&
+       (req.post? || req.delete?)
+      req.ip
+    end
+  end
+
+  ###
+  # Likes throttling
+  ###
+  throttle("likes/ip", limit: 30, period: 1.minute) do |req|
+    if req.path.match?(%r{^/api/v1/posts/\d+/like$}) &&
+       (req.post? || req.delete?)
+      req.ip
+    end
+  end
+
+  ###
   # Custom throttled response
   ###
   self.throttled_responder = lambda do |_request|
