@@ -27,6 +27,9 @@ class Post < ApplicationRecord
 
   validate :validate_images
 
+  scope :active, -> { where(deleted_at: nil) }
+  scope :deleted, -> { where.not(deleted_at: nil) }
+
   scope :visible_to, ->(user) {
     blocker_user_ids =
       Block.where(blocked_id: user.id)
@@ -62,12 +65,16 @@ class Post < ApplicationRecord
         .distinct
         .select(:id)
 
-    where(user_id: visible_user_ids)
+    where(user_id: visible_user_ids).active
   }
 
   after_create_commit :broadcast_to_feed
   after_create_commit :broadcast_post
   after_commit :enqueue_content_parsing, on: %i[create update]
+
+  def soft_delete!
+    update!(deleted_at: Time.current)
+  end
 
   private
 

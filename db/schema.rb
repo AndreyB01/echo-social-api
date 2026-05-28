@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_05_27_185354) do
+ActiveRecord::Schema[7.1].define(version: 2026_05_28_070432) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "citext"
   enable_extension "pg_trgm"
@@ -60,6 +60,8 @@ ActiveRecord::Schema[7.1].define(version: 2026_05_27_185354) do
     t.bigint "post_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.datetime "deleted_at"
+    t.index ["deleted_at"], name: "index_comments_on_deleted_at"
     t.index ["post_id"], name: "index_comments_on_post_id"
     t.index ["user_id"], name: "index_comments_on_user_id"
   end
@@ -147,8 +149,10 @@ ActiveRecord::Schema[7.1].define(version: 2026_05_27_185354) do
     t.datetime "updated_at", null: false
     t.integer "likes_count", default: 0, null: false
     t.integer "comments_count", default: 0, null: false
+    t.datetime "deleted_at"
     t.index ["body"], name: "index_posts_on_body_trgm", opclass: :gin_trgm_ops, using: :gin
     t.index ["created_at"], name: "index_posts_on_created_at"
+    t.index ["deleted_at"], name: "index_posts_on_deleted_at"
     t.index ["user_id", "created_at"], name: "index_posts_on_user_id_and_created_at"
     t.index ["user_id"], name: "index_posts_on_user_id"
   end

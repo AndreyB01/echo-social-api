@@ -13,7 +13,8 @@ class FeedQuery
       cursor: cursor
     ) do
       Pagination::CursorPaginator.new(
-        Post.visible_to(user)
+        Post.active
+            .visible_to(user)
             .includes(:user, :hashtags, images_attachments: :blob)
             .order(created_at: :desc),
         cursor: cursor,

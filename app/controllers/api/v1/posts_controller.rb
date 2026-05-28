@@ -57,7 +57,7 @@ module Api
       def destroy
         authorize(@post, :destroy?)
 
-        @post.destroy
+        @post.soft_delete!
 
         render_success(
           data: {
@@ -70,6 +70,7 @@ module Api
 
       def set_post
         @post = Post
+                  .active
                   .visible_to(current_user)
                   .includes(:user, :hashtags, images_attachments: :blob)
                   .find(params[:id])

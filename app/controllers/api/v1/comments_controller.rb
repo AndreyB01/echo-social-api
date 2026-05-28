@@ -2,9 +2,9 @@ class Api::V1::CommentsController < ApplicationController
   before_action :authenticate_user!, except: [:index]
 
   def index
-    post = Post.find(params[:post_id])
+    post = Post.active.find(params[:post_id])
 
-    comments = post.comments
+    comments = post.comments.active
                    .includes(:user)
                    .order(created_at: :asc)
                    .page(params[:page])
@@ -23,7 +23,7 @@ class Api::V1::CommentsController < ApplicationController
   end
 
   def create
-    post = Post.find(params[:post_id])
+    post = Post.active.find(params[:post_id])
 
     comment = current_user.comments.create!(
       post: post,
@@ -36,8 +36,8 @@ class Api::V1::CommentsController < ApplicationController
   end
 
   def destroy
-    comment = current_user.comments.find(params[:id])
-    comment.destroy!
+    comment = current_user.comments.active.find(params[:id])
+    comment.soft_delete!
 
     render json: { success: true }
   end
