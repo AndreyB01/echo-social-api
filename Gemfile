@@ -44,6 +44,13 @@ gem "sidekiq-cron"
 gem "kaminari"
 gem "rack-attack"
 gem "lograge"
+gem "prometheus_exporter"
+gem "yabeda"
+gem "yabeda-rails"
+gem "yabeda-sidekiq"
+gem "rswag-api"
+gem "rswag-ui"
+gem "rswag-specs"
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
@@ -54,7 +61,6 @@ group :development, :test do
   gem 'dotenv-rails'
   gem "bullet"
   gem "shoulda-matchers"
-  gem "rswag"
   gem "letter_opener_web"
   gem 'simplecov', require: false
 end

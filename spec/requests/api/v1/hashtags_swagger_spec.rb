@@ -1,7 +1,7 @@
 require "swagger_helper"
 
 RSpec.describe "Hashtags API", swagger_doc: "v1/swagger.yaml", type: :request do
-  path "/api/v1/hashtags/{id}/posts" do
+  path "/api/v1/hashtags/{tag}/posts" do
     get "Get posts by hashtag" do
       tags "Hashtags"
 
@@ -9,7 +9,7 @@ RSpec.describe "Hashtags API", swagger_doc: "v1/swagger.yaml", type: :request do
 
       security [bearerAuth: []]
 
-      parameter name: :id,
+      parameter name: :tag,
                 in: :path,
                 type: :string,
                 description: "Hashtag name"
@@ -19,8 +19,8 @@ RSpec.describe "Hashtags API", swagger_doc: "v1/swagger.yaml", type: :request do
         let(:token) { Jwt::Encoder.call(user_id: user.id) }
         let(:Authorization) { "Bearer #{token}" }
 
-        let(:id) { "ruby" }
-        let!(:hashtag) { create(:hashtag, name: id) }
+        let(:tag) { "ruby" }
+        let!(:hashtag) { create(:hashtag, name: tag) }
 
         run_test!
       end

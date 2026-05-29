@@ -9,7 +9,7 @@ module Auth
     end
 
     def call
-      user.refresh_tokens.active.update_all(
+      user.user_sessions.active.update_all(
         revoked_at: Time.current,
         updated_at: Time.current
       )

@@ -27,14 +27,16 @@ Rails.application.routes.draw do
         delete :logout_all, to: "logout#destroy_all"
       end
 
-      get :profile, to: "profiles#show"
+      get :me, to: "profiles#show"
 
       resources :posts, only: %i[index create show update destroy] do
         resource :like, only: [:create, :destroy]
         resources :comments, only: [:index, :create, :destroy]
       end
 
-      resources :hashtags, only: [] do
+      resources :hashtags,
+                only: [],
+                param: :tag do
         member do
           get :posts
         end
