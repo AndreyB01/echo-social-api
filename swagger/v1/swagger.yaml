@@ -1,8 +1,9 @@
 ---
 openapi: 3.0.1
 info:
-  title: API V1
+  title: Echo API
   version: v1
+  description: Echo social API
 servers:
 - url: http://localhost:3000
 components:
@@ -14,7 +15,201 @@ components:
 security:
 - bearerAuth: []
 paths:
-  "/api/v1/hashtags/{id}/posts":
+  "/api/v1/auth/refresh":
+    post:
+      summary: Refresh access token
+      tags:
+      - Auth
+      parameters: []
+      responses:
+        '200':
+          description: token refreshed
+          content:
+            application/json:
+              examples:
+                success_response:
+                  value:
+                    access_token: new_access_token
+                    refresh_token: new_refresh_token
+                    token_type: Bearer
+        '401':
+          description: invalid refresh token
+          content:
+            application/json:
+              examples:
+                invalid_token:
+                  value:
+                    error: Invalid refresh token
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                refresh_token:
+                  type: string
+                  example: refresh_token_value
+              required:
+              - refresh_token
+  "/api/v1/auth/register":
+    post:
+      summary: Register user
+      tags:
+      - Auth
+      parameters: []
+      responses:
+        '201':
+          description: user created
+          content:
+            application/json:
+              examples:
+                success_response:
+                  value:
+                    data:
+                      id: 1
+                      type: user
+                      attributes:
+                        email: john@example.com
+                        username: john_doe
+                        display_name: 
+                        bio: 
+                        created_at: '2026-05-29T12:00:00Z'
+                    meta: {}
+                    errors: []
+        '422':
+          description: validation failed
+          content:
+            application/json:
+              examples:
+                validation_error:
+                  value:
+                    errors:
+                    - Email has already been taken
+                    - Password is too short (minimum is 8 characters)
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: string
+                required:
+                - errors
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user:
+                  type: object
+                  properties:
+                    email:
+                      type: string
+                      example: john@example.com
+                    username:
+                      type: string
+                      example: john_doe
+                    password:
+                      type: string
+                      example: password123
+                    password_confirmation:
+                      type: string
+                      example: password123
+                  required:
+                  - email
+                  - username
+                  - password
+                  - password_confirmation
+  "/api/v1/auth/login":
+    post:
+      summary: Login user
+      tags:
+      - Auth
+      parameters: []
+      responses:
+        '200':
+          description: login success
+          content:
+            application/json:
+              examples:
+                success_response:
+                  value:
+                    data:
+                      access_token: jwt_access_token
+                      refresh_token: jwt_refresh_token
+                      token_type: Bearer
+                    meta: {}
+                    errors: []
+        '401':
+          description: invalid credentials
+          content:
+            application/json:
+              examples:
+                invalid_credentials:
+                  value:
+                    error: Invalid credentials
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Invalid credentials
+                required:
+                - error
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user:
+                  type: object
+                  properties:
+                    email:
+                      type: string
+                      example: john@example.com
+                    password:
+                      type: string
+                      example: password123
+                  required:
+                  - email
+                  - password
+  "/api/v1/auth/logout":
+    delete:
+      summary: Logout user
+      tags:
+      - Auth
+      parameters: []
+      responses:
+        '200':
+          description: logout success
+          content:
+            application/json:
+              examples:
+                success_response:
+                  value:
+                    message: Logged out successfully
+        '401':
+          description: invalid refresh token
+          content:
+            application/json:
+              examples:
+                invalid_token:
+                  value:
+                    error: Invalid refresh token
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                refresh_token:
+                  type: string
+                  example: refresh_token_value
+              required:
+              - refresh_token
+  "/api/v1/hashtags/{tag}/posts":
     get:
       summary: Get posts by hashtag
       tags:
@@ -22,12 +217,7 @@ paths:
       security:
       - bearerAuth: []
       parameters:
-      - name: Authorization
-        in: header
-        required: true
-        schema:
-          type: string
-      - name: id
+      - name: tag
         in: path
         description: Hashtag name
         required: true
@@ -46,6 +236,65 @@ paths:
       responses:
         '200':
           description: notifications found
+          content:
+            application/json:
+              examples:
+                success_response:
+                  value:
+                    data:
+                    - id: 1
+                      notification_type: like
+                      read: false
+                      created_at: '2026-05-29T12:00:00Z'
+                      actor:
+                        id: 2
+                        username: alice
+                    meta: {}
+                    errors: []
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          example: 1
+                        notification_type:
+                          type: string
+                          example: like
+                        read:
+                          type: boolean
+                          example: false
+                        created_at:
+                          type: string
+                          format: date-time
+                        actor:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                              example: 2
+                            username:
+                              type: string
+                              example: alice
+                      required:
+                      - id
+                      - notification_type
+                      - read
+                      - created_at
+                  meta:
+                    type: object
+                    nullable: true
+                  errors:
+                    type: array
+                    items:
+                      type: string
+                    example: []
+                required:
+                - data
   "/api/v1/notifications/unread_count":
     get:
       summary: Unread notifications count
@@ -56,6 +305,188 @@ paths:
       responses:
         '200':
           description: count returned
+          content:
+            application/json:
+              examples:
+                success_response:
+                  value:
+                    count: 5
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: integer
+                    example: 5
+                required:
+                - count
+  "/api/v1/posts":
+    get:
+      summary: List posts
+      tags:
+      - Posts
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: posts list
+          content:
+            application/json:
+              examples:
+                success_response:
+                  value:
+                    data:
+                    - id: 1
+                      body: Hello world
+                      created_at: '2026-05-29T10:00:00Z'
+                      likes_count: 5
+                      comments_count: 2
+                      hashtags:
+                      - ruby
+                      - rails
+                      author:
+                        id: 1
+                        username: john_doe
+                    meta:
+                      current_page: 1
+                      next_page: 
+                      prev_page: 
+                      total_pages: 1
+                      total_count: 1
+                    errors: []
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          example: 1
+                        body:
+                          type: string
+                          example: Hello world
+                        created_at:
+                          type: string
+                          format: date-time
+                        likes_count:
+                          type: integer
+                          example: 5
+                        comments_count:
+                          type: integer
+                          example: 2
+                        hashtags:
+                          type: array
+                          items:
+                            type: string
+                          example:
+                          - ruby
+                          - rails
+                        author:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                              example: 1
+                            username:
+                              type: string
+                              example: john_doe
+                      required:
+                      - id
+                      - body
+                      - created_at
+                  meta:
+                    type: object
+                    properties:
+                      current_page:
+                        type: integer
+                        example: 1
+                      next_page:
+                        type: integer
+                        nullable: true
+                        example: 
+                      prev_page:
+                        type: integer
+                        nullable: true
+                        example: 
+                      total_pages:
+                        type: integer
+                        example: 1
+                      total_count:
+                        type: integer
+                        example: 10
+                    required:
+                    - current_page
+                    - total_pages
+                    - total_count
+                  errors:
+                    type: array
+                    items:
+                      type: string
+                    example: []
+                required:
+                - data
+  "/api/v1/me":
+    get:
+      summary: Current user profile
+      tags:
+      - Profile
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: profile found
+          content:
+            application/json:
+              examples:
+                success_response:
+                  value:
+                    data:
+                      id: 1
+                      email: john@example.com
+                      username: john_doe
+                      display_name: John Doe
+                      bio: Ruby developer
+                    meta: {}
+                    errors: []
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 1
+                      email:
+                        type: string
+                        example: john@example.com
+                      username:
+                        type: string
+                        example: john_doe
+                      display_name:
+                        type: string
+                        nullable: true
+                        example: John Doe
+                      bio:
+                        type: string
+                        nullable: true
+                        example: Ruby developer
+                    required:
+                    - id
+                    - email
+                    - username
+                  meta:
+                    type: object
+                    nullable: true
+                  errors:
+                    type: array
+                    items:
+                      type: string
+                    example: []
+                required:
+                - data
   "/api/v1/search":
     get:
       summary: Global search
@@ -88,3 +519,49 @@ paths:
       responses:
         '200':
           description: users found
+          content:
+            application/json:
+              examples:
+                success_response:
+                  value:
+                    data:
+                    - id: 1
+                      username: john_doe
+                      email: john@example.com
+                      created_at: '2026-05-29T10:00:00Z'
+                    meta: {}
+                    errors: []
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          example: 1
+                        username:
+                          type: string
+                          example: john_doe
+                        email:
+                          type: string
+                          example: john@example.com
+                        created_at:
+                          type: string
+                          format: date-time
+                      required:
+                      - id
+                      - username
+                      - email
+                  meta:
+                    type: object
+                    nullable: true
+                  errors:
+                    type: array
+                    items:
+                      type: string
+                    example: []
+                required:
+                - data

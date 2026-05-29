@@ -14,7 +14,7 @@ module Api
           render json: {
             message: "Logged out successfully"
           }, status: :ok
-        rescue ::Auth::LogoutService::InvalidTokenError
+        rescue ::Auth::LogoutService::InvalidSessionError
           render json: {
             error: "Invalid refresh token"
           }, status: :unauthorized
