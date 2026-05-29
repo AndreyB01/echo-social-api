@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_05_28_070432) do
+ActiveRecord::Schema[7.1].define(version: 2026_05_29_151759) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "citext"
   enable_extension "pg_trgm"
@@ -157,19 +157,6 @@ ActiveRecord::Schema[7.1].define(version: 2026_05_28_070432) do
     t.index ["user_id"], name: "index_posts_on_user_id"
   end
 
-  create_table "refresh_tokens", force: :cascade do |t|
-    t.bigint "user_id", null: false
-    t.string "token_digest", null: false
-    t.datetime "expires_at", null: false
-    t.datetime "revoked_at"
-    t.string "device_name"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["expires_at"], name: "index_refresh_tokens_on_expires_at"
-    t.index ["token_digest"], name: "index_refresh_tokens_on_token_digest", unique: true
-    t.index ["user_id"], name: "index_refresh_tokens_on_user_id"
-  end
-
   create_table "user_sessions", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.string "refresh_token_digest", null: false
@@ -225,6 +212,5 @@ ActiveRecord::Schema[7.1].define(version: 2026_05_28_070432) do
   add_foreign_key "post_mentions", "posts"
   add_foreign_key "post_mentions", "users"
   add_foreign_key "posts", "users"
-  add_foreign_key "refresh_tokens", "users"
   add_foreign_key "user_sessions", "users"
 end
