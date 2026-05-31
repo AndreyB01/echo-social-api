@@ -209,6 +209,209 @@ paths:
                   example: refresh_token_value
               required:
               - refresh_token
+  "/api/v1/posts/{post_id}/comments":
+    parameters:
+    - name: post_id
+      in: path
+      required: true
+      schema:
+        type: integer
+    get:
+      summary: List comments
+      tags:
+      - Comments
+      responses:
+        '200':
+          description: comments list
+          content:
+            application/json:
+              examples:
+                success_response:
+                  value:
+                    data:
+                    - id: 1
+                      body: Nice post!
+                      created_at: '2026-05-29T10:00:00Z'
+                      author:
+                        id: 1
+                        username: john_doe
+                        display_name: John Doe
+                        avatar_url: 
+                    meta:
+                      current_page: 1
+                      next_page: 
+                      prev_page: 
+                      total_pages: 1
+                      total_count: 1
+                    errors: []
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          example: 1
+                        body:
+                          type: string
+                          example: Nice post!
+                        created_at:
+                          type: string
+                          format: date-time
+                        author:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                              example: 1
+                            username:
+                              type: string
+                              example: john_doe
+                            email:
+                              type: string
+                              example: john@example.com
+                            created_at:
+                              type: string
+                              format: date-time
+                      required:
+                      - id
+                      - body
+                      - created_at
+                      - author
+                  meta:
+                    type: object
+                    properties:
+                      current_page:
+                        type: integer
+                        example: 1
+                      next_page:
+                        type: integer
+                        nullable: true
+                        example: 
+                      prev_page:
+                        type: integer
+                        nullable: true
+                        example: 
+                      total_pages:
+                        type: integer
+                        example: 1
+                      total_count:
+                        type: integer
+                        example: 10
+                    required:
+                    - current_page
+                    - total_pages
+                    - total_count
+                  errors:
+                    type: array
+                    items:
+                      type: string
+                    example: []
+                required:
+                - data
+    post:
+      summary: Create comment
+      tags:
+      - Comments
+      security:
+      - bearerAuth: []
+      parameters: []
+      responses:
+        '201':
+          description: comment created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 1
+                      body:
+                        type: string
+                        example: Nice post!
+                      created_at:
+                        type: string
+                        format: date-time
+                      author:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                            example: 1
+                          username:
+                            type: string
+                            example: john_doe
+                          email:
+                            type: string
+                            example: john@example.com
+                          created_at:
+                            type: string
+                            format: date-time
+                    required:
+                    - id
+                    - body
+                    - created_at
+                    - author
+                  meta:
+                    type: object
+                    nullable: true
+                  errors:
+                    type: array
+                    items:
+                      type: string
+                    example: []
+                required:
+                - data
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                comment:
+                  type: object
+                  properties:
+                    body:
+                      type: string
+                      example: Nice post!
+                  required:
+                  - body
+  "/api/v1/posts/{post_id}/comments/{id}":
+    parameters:
+    - name: post_id
+      in: path
+      required: true
+      schema:
+        type: integer
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+    delete:
+      summary: Delete comment
+      tags:
+      - Comments
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: comment deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
   "/api/v1/hashtags/{tag}/posts":
     get:
       summary: Get posts by hashtag
