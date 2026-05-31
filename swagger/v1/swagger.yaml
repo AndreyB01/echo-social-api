@@ -209,6 +209,75 @@ paths:
                   example: refresh_token_value
               required:
               - refresh_token
+  "/api/v1/users/{id}/block":
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+    post:
+      summary: Block user
+      tags:
+      - Blocks
+      security:
+      - bearerAuth: []
+      responses:
+        '201':
+          description: user blocked
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      blocked:
+                        type: boolean
+                      user_id:
+                        type: integer
+                  meta:
+                    type: object
+                    nullable: true
+                  errors:
+                    type: array
+                    items:
+                      type: string
+                    example: []
+                required:
+                - data
+    delete:
+      summary: Unblock user
+      tags:
+      - Blocks
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: user unblocked
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      blocked:
+                        type: boolean
+                      user_id:
+                        type: integer
+                  meta:
+                    type: object
+                    nullable: true
+                  errors:
+                    type: array
+                    items:
+                      type: string
+                    example: []
+                required:
+                - data
   "/api/v1/posts/{post_id}/comments":
     parameters:
     - name: post_id
@@ -412,6 +481,165 @@ paths:
                   success:
                     type: boolean
                     example: true
+  "/api/v1/users/{id}/follow/accept":
+    patch:
+      summary: Accept follow request
+      tags:
+      - Follow Requests
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        schema:
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: request accepted
+  "/api/v1/users/{id}/follow/reject":
+    patch:
+      summary: Reject follow request
+      tags:
+      - Follow Requests
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        schema:
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: request rejected
+  "/api/v1/follow_requests":
+    get:
+      summary: List pending follow requests
+      tags:
+      - Follow Requests
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: follow requests list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          example: 1
+                        follower:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                              example: 2
+                            username:
+                              type: string
+                              example: john_doe
+                            display_name:
+                              type: string
+                              example: John Doe
+                      required:
+                      - id
+                      - follower
+                  meta:
+                    type: object
+                    nullable: true
+                  errors:
+                    type: array
+                    items:
+                      type: string
+                    example: []
+                required:
+                - data
+  "/api/v1/users/{id}/follow":
+    post:
+      summary: Follow user
+      tags:
+      - Follows
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        schema:
+          type: integer
+        required: true
+      responses:
+        '201':
+          description: follow created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      following:
+                        type: boolean
+                      requested:
+                        type: boolean
+                      status:
+                        type: string
+                      user_id:
+                        type: integer
+                  meta:
+                    type: object
+                    nullable: true
+                  errors:
+                    type: array
+                    items:
+                      type: string
+                    example: []
+                required:
+                - data
+    delete:
+      summary: Unfollow user
+      tags:
+      - Follows
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        schema:
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: user unfollowed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      following:
+                        type: boolean
+                      user_id:
+                        type: integer
+                  meta:
+                    type: object
+                    nullable: true
+                  errors:
+                    type: array
+                    items:
+                      type: string
+                    example: []
+                required:
+                - data
   "/api/v1/hashtags/{tag}/posts":
     get:
       summary: Get posts by hashtag
@@ -429,6 +657,75 @@ paths:
       responses:
         '200':
           description: posts found
+  "/api/v1/users/{id}/mute":
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+    post:
+      summary: Mute user
+      tags:
+      - Mutes
+      security:
+      - bearerAuth: []
+      responses:
+        '201':
+          description: user muted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      muted:
+                        type: boolean
+                      user_id:
+                        type: integer
+                  meta:
+                    type: object
+                    nullable: true
+                  errors:
+                    type: array
+                    items:
+                      type: string
+                    example: []
+                required:
+                - data
+    delete:
+      summary: Unmute user
+      tags:
+      - Mutes
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: user unmuted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      muted:
+                        type: boolean
+                      user_id:
+                        type: integer
+                  meta:
+                    type: object
+                    nullable: true
+                  errors:
+                    type: array
+                    items:
+                      type: string
+                    example: []
+                required:
+                - data
   "/api/v1/notifications":
     get:
       summary: List notifications
