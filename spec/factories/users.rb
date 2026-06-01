@@ -5,5 +5,7 @@ FactoryBot.define do
 
     display_name { "Test User" }
     password { "password" }
+
+    confirmed_at { Time.current }
   end
 end

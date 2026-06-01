@@ -106,7 +106,9 @@ RSpec.describe "Notifications API", type: :request do
 
       json = JSON.parse(response.body)
 
-      expect(json["unread_count"]).to eq(1)
+      expect(
+        json.dig("data", "unread_count")
+      ).to eq(1)
     end
   end
 end
