@@ -8,7 +8,7 @@ class Api::V1::UsersController < ApplicationController
               .where("similarity(username, ?) > 0.2", query)
               .order(
                 Arel.sql(
-                  sanitize_sql_array(
+                  ActiveRecord::Base.sanitize_sql_array(
                     [
                       "similarity(username, ?) DESC",
                       query
@@ -19,7 +19,9 @@ class Api::V1::UsersController < ApplicationController
               .limit(10)
 
     render json: {
-      data: users.map { |user| serialize_user(user) }
+      data: users.map { |user| serialize_user(user) },
+      meta: {},
+      errors: []
     }
   end
 

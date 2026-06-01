@@ -35,7 +35,7 @@ class Api::V1::FollowsController < ApplicationController
     render_success(
       data: {
         following: false,
-        user_id: params[:id]
+        user_id: params[:id].to_i
       }
     )
   end

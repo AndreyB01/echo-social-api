@@ -33,7 +33,7 @@ class Api::V1::BlocksController < ApplicationController
     render_success(
       data: {
         blocked: false,
-        user_id: params[:id]
+        user_id: params[:id].to_i
       }
     )
   end

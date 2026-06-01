@@ -29,7 +29,7 @@ class Api::V1::MutesController < ApplicationController
     render_success(
       data: {
         muted: false,
-        user_id: params[:id]
+        user_id: params[:id].to_i
       }
     )
   end
