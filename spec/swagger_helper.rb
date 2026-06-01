@@ -27,11 +27,6 @@ RSpec.configure do |config|
           }
         }
       },
-      security: [
-        {
-          bearerAuth: []
-        }
-      ],
       paths: {}
     }
   }

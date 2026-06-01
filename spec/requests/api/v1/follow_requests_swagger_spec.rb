@@ -10,6 +10,21 @@ RSpec.describe "Follow Requests API", type: :request do
       security [ bearerAuth: [] ]
 
       response "200", "follow requests list" do
+        let(:user) { create(:user) }
+        let(:follower) { create(:user) }
+
+        let(:Authorization) do
+          "Bearer #{Jwt::Encoder.call(user_id: user.id)}"
+        end
+
+        before do
+          Follow.create!(
+            follower: follower,
+            followed: user,
+            status: :pending
+          )
+        end
+
         schema BaseResponseSchema.call(
           data_schema: {
             type: :array,
@@ -22,4 +37,3 @@ RSpec.describe "Follow Requests API", type: :request do
     end
   end
 end
-

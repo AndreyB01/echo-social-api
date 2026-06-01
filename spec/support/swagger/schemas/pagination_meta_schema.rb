@@ -3,32 +3,22 @@
 PaginationMetaSchema = {
   type: :object,
   properties: {
-    current_page: {
-      type: :integer,
-      example: 1
-    },
-    next_page: {
-      type: :integer,
+    next_cursor: {
+      type: :string,
       nullable: true,
       example: nil
     },
-    prev_page: {
+    limit: {
       type: :integer,
-      nullable: true,
-      example: nil
+      example: 20
     },
-    total_pages: {
-      type: :integer,
-      example: 1
-    },
-    total_count: {
-      type: :integer,
-      example: 10
+    has_next: {
+      type: :boolean,
+      example: false
     }
   },
   required: %w[
-    current_page
-    total_pages
-    total_count
+    limit
+    has_next
   ]
 }.freeze

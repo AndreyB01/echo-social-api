@@ -7,7 +7,7 @@ NotificationSchema = {
       type: :integer,
       example: 1
     },
-    notification_type: {
+    type: {
       type: :string,
       example: "like"
     },
@@ -35,7 +35,7 @@ NotificationSchema = {
   },
   required: %w[
     id
-    notification_type
+    type
     read
     created_at
   ]

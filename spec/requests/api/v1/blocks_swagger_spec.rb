@@ -10,6 +10,15 @@ RSpec.describe "Blocks API", type: :request do
       produces "application/json"
 
       response "201", "user blocked" do
+        let(:current_user) { create(:user) }
+        let(:target_user) { create(:user) }
+
+        let(:Authorization) do
+          "Bearer #{Jwt::Encoder.call(user_id: current_user.id)}"
+        end
+
+        let(:id) { target_user.id }
+
         schema BaseResponseSchema.call(
           data_schema: {
             type: :object,
@@ -19,8 +28,6 @@ RSpec.describe "Blocks API", type: :request do
             }
           }
         )
-
-        let(:id) { 1 }
 
         run_test!
       end
@@ -32,6 +39,22 @@ RSpec.describe "Blocks API", type: :request do
       produces "application/json"
 
       response "200", "user unblocked" do
+        let(:current_user) { create(:user) }
+        let(:target_user) { create(:user) }
+
+        before do
+          Block.create!(
+            blocker: current_user,
+            blocked: target_user
+          )
+        end
+
+        let(:Authorization) do
+          "Bearer #{Jwt::Encoder.call(user_id: current_user.id)}"
+        end
+
+        let(:id) { target_user.id }
+
         schema BaseResponseSchema.call(
           data_schema: {
             type: :object,
@@ -42,11 +65,8 @@ RSpec.describe "Blocks API", type: :request do
           }
         )
 
-        let(:id) { 1 }
-
         run_test!
       end
     end
   end
 end
-

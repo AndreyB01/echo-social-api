@@ -38,10 +38,11 @@ RSpec.describe 'Notifications API',
         end
 
         example "application/json", :success_response, {
+          success: true,
           data: [
             {
               id: 1,
-              notification_type: "like",
+              type: "like",
               read: false,
               created_at: "2026-05-29T12:00:00Z",
               actor: {
@@ -50,8 +51,11 @@ RSpec.describe 'Notifications API',
               }
             }
           ],
-          meta: {},
-          errors: []
+          meta: {
+            next_cursor: nil,
+            limit: 20,
+            has_next: false
+          }
         }
 
         run_test!
@@ -68,16 +72,17 @@ RSpec.describe 'Notifications API',
       security [ bearerAuth: [] ]
 
       response '200', 'count returned' do
-        schema({
-          type: :object,
-          properties: {
-            count: {
-              type: :integer,
-              example: 5
-            }
-          },
-          required: ['count']
-        })
+        schema BaseResponseSchema.call(
+          data_schema: {
+            type: :object,
+            properties: {
+              unread_count: {
+                type: :integer
+              }
+            },
+            required: ['unread_count']
+          }
+        )
 
         let!(:user) { create(:user) }
 
@@ -86,7 +91,10 @@ RSpec.describe 'Notifications API',
         end
 
         example "application/json", :success_response, {
-          count: 5
+          success: true,
+          data: {
+            unread_count: 5
+          }
         }
 
         run_test!

@@ -15,6 +15,15 @@ RSpec.describe "Follows API", type: :request do
                 schema: { type: :integer }
 
       response "201", "follow created" do
+        let(:current_user) { create(:user) }
+        let(:target_user) { create(:user) }
+
+        let(:Authorization) do
+          "Bearer #{Jwt::Encoder.call(user_id: current_user.id)}"
+        end
+
+        let(:id) { target_user.id }
+
         schema BaseResponseSchema.call(
           data_schema: {
             type: :object,
@@ -43,6 +52,23 @@ RSpec.describe "Follows API", type: :request do
                 schema: { type: :integer }
 
       response "200", "user unfollowed" do
+        let(:current_user) { create(:user) }
+        let(:target_user) { create(:user) }
+
+        let(:Authorization) do
+          "Bearer #{Jwt::Encoder.call(user_id: current_user.id)}"
+        end
+
+        let(:id) { target_user.id }
+
+        before do
+          Follow.create!(
+            follower: current_user,
+            followed: target_user,
+            status: :accepted
+          )
+        end
+
         schema BaseResponseSchema.call(
           data_schema: {
             type: :object,
@@ -58,4 +84,3 @@ RSpec.describe "Follows API", type: :request do
     end
   end
 end
-
