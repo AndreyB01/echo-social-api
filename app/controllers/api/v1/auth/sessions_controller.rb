@@ -5,7 +5,9 @@ module Api
         def create
           tokens = ::Auth::LoginService.call(
             email: login_params[:email],
-            password: login_params[:password]
+            password: login_params[:password],
+            user_agent: request.user_agent,
+            ip_address: request.remote_ip
           )
 
           render_success(

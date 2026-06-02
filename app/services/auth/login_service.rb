@@ -38,14 +38,6 @@ module Auth
 
       raise InvalidCredentialsError unless authenticated_user
       raise InvalidCredentialsError unless user.confirmed_at?
-      
-      session = UserSession.create!(
-        user: user,
-        refresh_token_digest: nil,
-        user_agent: user_agent,
-        ip_address: ip_address,
-        expires_at: 30.days.from_now
-      )
 
       raw_refresh_token =
         SecureRandom.hex(64)
@@ -55,17 +47,18 @@ module Auth
           raw_refresh_token
         )
 
-      session.update!(
-        refresh_token_digest:
-          refresh_token_digest
+      session = UserSession.create!(
+        user: user,
+        refresh_token_digest: refresh_token_digest,
+        user_agent: user_agent,
+        ip_address: ip_address,
+        expires_at: 30.days.from_now
       )
 
       access_token =
         Jwt::AccessTokenEncoder.call(
-          {
-            user_id: user.id,
-            session_id: session.id
-          }
+          user: user,
+          session: session
         )
 
       {

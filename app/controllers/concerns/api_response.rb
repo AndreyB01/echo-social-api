@@ -8,8 +8,8 @@ module ApiResponse
       success: true
     }
 
-    response[:data] = data if data.present?
-    response[:meta] = meta if meta.present?
+    response[:data] = data unless data.nil?
+    response[:meta] = meta unless meta.nil?
 
     render json: response, status: status
   end

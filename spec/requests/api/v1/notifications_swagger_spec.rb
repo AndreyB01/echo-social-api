@@ -38,10 +38,11 @@ RSpec.describe 'Notifications API',
         end
 
         example "application/json", :success_response, {
+          success: true,
           data: [
             {
               id: 1,
-              notification_type: "like",
+              type: "like",
               read: false,
               created_at: "2026-05-29T12:00:00Z",
               actor: {
@@ -50,8 +51,11 @@ RSpec.describe 'Notifications API',
               }
             }
           ],
-          meta: {},
-          errors: []
+          meta: {
+            next_cursor: nil,
+            limit: 20,
+            has_next: false
+          }
         }
 
         run_test!
@@ -59,35 +63,59 @@ RSpec.describe 'Notifications API',
     end
   end
 
-  path '/api/v1/notifications/unread_count' do
-    get 'Unread notifications count' do
+  path '/api/v1/notifications/{id}/read' do
+    parameter name: :id,
+              in: :path,
+              type: :integer,
+              required: true
+
+    patch 'Mark notification as read' do
       tags 'Notifications'
 
       produces 'application/json'
 
       security [ bearerAuth: [] ]
 
-      response '200', 'count returned' do
-        schema({
-          type: :object,
-          properties: {
-            count: {
-              type: :integer,
-              example: 5
-            }
-          },
-          required: ['count']
-        })
+      response '200', 'notification marked as read' do
+        let(:user) { create(:user) }
+        let(:actor) { create(:user) }
+        let(:post) { create(:post, user: actor) }
 
-        let!(:user) { create(:user) }
+        let(:notification) do
+          create(
+            :notification,
+            user: user,
+            actor: actor,
+            notification_type: 'like',
+            notifiable: post
+          )
+        end
+
+        let(:id) { notification.id }
 
         let(:Authorization) do
           "Bearer #{Jwt::Encoder.call(user_id: user.id)}"
         end
 
-        example "application/json", :success_response, {
-          count: 5
-        }
+        run_test!
+      end
+    end
+  end
+
+  path '/api/v1/notifications/read_all' do
+    patch 'Mark all notifications as read' do
+      tags 'Notifications'
+
+      produces 'application/json'
+
+      security [ bearerAuth: [] ]
+
+      response '200', 'all notifications marked as read' do
+        let(:user) { create(:user) }
+
+        let(:Authorization) do
+          "Bearer #{Jwt::Encoder.call(user_id: user.id)}"
+        end
 
         run_test!
       end

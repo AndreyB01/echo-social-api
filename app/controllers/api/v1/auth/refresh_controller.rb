@@ -9,7 +9,7 @@ module Api
         end
 
         def create
-          tokens = Auth::RefreshService.call(
+          tokens = ::Auth::RefreshService.call(
             refresh_token: params[:refresh_token]
           )
 

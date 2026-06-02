@@ -1,13 +1,9 @@
 class Api::V1::FollowsController < ApplicationController
   before_action :authenticate_user!
+  before_action :set_user
 
   def create
-    user_to_follow = User.find(params[:id])
-
-    follow = Follow.find_or_initialize_by(
-      follower: current_user,
-      followed: user_to_follow
-    )
+    follow = Follow.find_or_initialize_by(follower: current_user, followed: @user)
 
     if follow.save
       render_success(
@@ -15,7 +11,7 @@ class Api::V1::FollowsController < ApplicationController
           following: follow.accepted?,
           requested: follow.pending?,
           status: follow.status,
-          user_id: user_to_follow.id
+          user_id: @user.id
         },
         status: :created
       )
@@ -25,52 +21,20 @@ class Api::V1::FollowsController < ApplicationController
   end
 
   def destroy
-    follow = Follow.find_by(
-      follower: current_user,
-      followed_id: params[:id]
-    )
-
+    follow = Follow.find_by(follower: current_user, followed: @user)
     follow&.destroy
 
     render_success(
       data: {
         following: false,
-        user_id: params[:id]
+        user_id: @user.id
       }
     )
   end
 
-  def accept
-    follow = Follow.find_by!(
-      follower_id: params[:id],
-      followed: current_user,
-      status: :pending
-    )
+  private
 
-    follow.update!(status: :accepted)
-
-    render_success(
-      data: {
-        status: follow.status,
-        user_id: follow.follower_id
-      }
-    )
-  end
-
-  def reject
-    follow = Follow.find_by!(
-      follower_id: params[:id],
-      followed: current_user,
-      status: :pending
-    )
-
-    follow.update!(status: :rejected)
-
-    render_success(
-      data: {
-        status: follow.status,
-        user_id: follow.follower_id
-      }
-    )
+  def set_user
+    @user = User.find_by!(username: params[:username])
   end
 end

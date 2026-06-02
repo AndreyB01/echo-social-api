@@ -42,12 +42,10 @@ module Auth
       )
 
       access_token =
-        Jwt::AccessTokenEncoder.call(
-          {
-            user_id: session.user_id,
-            session_id: session.id
-          }
-        )
+      Jwt::AccessTokenEncoder.call(
+        user: session.user,
+        session: session
+      )
 
       {
         access_token: access_token,

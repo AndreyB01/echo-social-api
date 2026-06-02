@@ -9,7 +9,10 @@ RSpec.describe FeedQuery do
     end
 
     let!(:unfollowed_user) do
-      create(:user)
+      create(
+        :user,
+        is_private: true
+      )
     end
 
     let!(:follow) do
@@ -42,36 +45,28 @@ RSpec.describe FeedQuery do
     end
 
     it "includes own posts" do
-      result = described_class.new(
-        user:
-      ).call
+      result = described_class.new(user: user).call
 
-      expect(result).to include(own_post)
+      expect(result[:records]).to include(own_post)
     end
 
     it "includes followed users posts" do
-      result = described_class.new(
-        user:
-      ).call
+      result = described_class.new(user: user).call
 
-      expect(result).to include(followed_post)
+      expect(result[:records]).to include(followed_post)
     end
 
     it "does not include unfollowed users posts" do
-      result = described_class.new(
-        user:
-      ).call
+      result = described_class.new(user: user).call
 
-      expect(result).not_to include(unfollowed_post)
+      expect(result[:records]).not_to include(unfollowed_post)
     end
 
     it "orders posts by newest first" do
-      result = described_class.new(
-        user:
-      ).call
+      result = described_class.new(user: user).call
 
-      expect(result.first.created_at)
-        .to be >= result.last.created_at
+      expect(result[:records].first.created_at)
+        .to be >= result[:records].last.created_at
     end
   end
 end

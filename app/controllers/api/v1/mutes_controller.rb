@@ -1,36 +1,28 @@
 class Api::V1::MutesController < ApplicationController
   before_action :authenticate_user!
+  before_action :set_user
 
   def create
-    user_to_mute = User.find(params[:id])
-
-    mute = Mute.find_or_create_by!(
-      muter: current_user,
-      muted: user_to_mute
-    )
+    mute = Mute.find_or_create_by!(muter: current_user, muted: @user)
 
     render_success(
-      data: {
-        muted: true,
-        user_id: mute.muted_id
-      },
+      data: { muted: true, user_id: @user.id },
       status: :created
     )
   end
 
   def destroy
-    mute = Mute.find_by(
-      muter: current_user,
-      muted_id: params[:id]
-    )
-
+    mute = Mute.find_by(muter: current_user, muted: @user)
     mute&.destroy
 
     render_success(
-      data: {
-        muted: false,
-        user_id: params[:id]
-      }
+      data: { muted: false, user_id: @user.id }
     )
+  end
+
+  private
+
+  def set_user
+    @user = User.find_by!(username: params[:username])
   end
 end

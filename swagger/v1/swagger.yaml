@@ -12,45 +12,58 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
-security:
-- bearerAuth: []
 paths:
-  "/api/v1/auth/refresh":
-    post:
-      summary: Refresh access token
+  "/api/v1/admin/reports":
+    get:
+      summary: List reports
       tags:
-      - Auth
-      parameters: []
+      - Admin
+      security:
+      - bearerAuth: []
+      description: Admin only. Returns all reports.
       responses:
         '200':
-          description: token refreshed
-          content:
-            application/json:
-              examples:
-                success_response:
-                  value:
-                    access_token: new_access_token
-                    refresh_token: new_refresh_token
-                    token_type: Bearer
-        '401':
-          description: invalid refresh token
-          content:
-            application/json:
-              examples:
-                invalid_token:
-                  value:
-                    error: Invalid refresh token
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                refresh_token:
-                  type: string
-                  example: refresh_token_value
-              required:
-              - refresh_token
+          description: reports list
+        '403':
+          description: forbidden
+  "/api/v1/admin/posts/{id}/hide":
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+    post:
+      summary: Hide post
+      tags:
+      - Admin
+      security:
+      - bearerAuth: []
+      description: Admin only. Sets hidden_at on post.
+      responses:
+        '200':
+          description: post hidden
+        '403':
+          description: forbidden
+  "/api/v1/admin/users/{id}/ban":
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+    post:
+      summary: Ban user
+      tags:
+      - Admin
+      security:
+      - bearerAuth: []
+      description: Admin only. Sets banned_at on user.
+      responses:
+        '200':
+          description: user banned
+        '403':
+          description: forbidden
   "/api/v1/auth/register":
     post:
       summary: Register user
@@ -175,8 +188,44 @@ paths:
                   required:
                   - email
                   - password
+  "/api/v1/auth/refresh":
+    post:
+      summary: Refresh access token
+      tags:
+      - Auth
+      parameters: []
+      responses:
+        '200':
+          description: token refreshed
+          content:
+            application/json:
+              examples:
+                success_response:
+                  value:
+                    access_token: new_access_token
+                    refresh_token: new_refresh_token
+                    token_type: Bearer
+        '401':
+          description: invalid refresh token
+          content:
+            application/json:
+              examples:
+                invalid_token:
+                  value:
+                    error: Invalid refresh token
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                refresh_token:
+                  type: string
+                  example: refresh_token_value
+              required:
+              - refresh_token
   "/api/v1/auth/logout":
-    delete:
+    post:
       summary: Logout user
       tags:
       - Auth
@@ -209,48 +258,70 @@ paths:
                   example: refresh_token_value
               required:
               - refresh_token
-  "/api/v1/hashtags/{tag}/posts":
-    get:
-      summary: Get posts by hashtag
+  "/api/v1/auth/confirm":
+    post:
+      summary: Confirm email
       tags:
-      - Hashtags
-      security:
-      - bearerAuth: []
-      parameters:
-      - name: tag
-        in: path
-        description: Hashtag name
-        required: true
-        schema:
-          type: string
+      - Auth
+      parameters: []
       responses:
         '200':
-          description: posts found
-  "/api/v1/notifications":
-    get:
-      summary: List notifications
+          description: email confirmed
+        '422':
+          description: invalid token
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                token:
+                  type: string
+                  example: confirmation_token
+              required:
+              - token
+  "/api/v1/auth/resend_confirmation":
+    post:
+      summary: Resend confirmation email
       tags:
-      - Notifications
-      security:
-      - bearerAuth: []
+      - Auth
+      description: Resend confirmation email to user
+      parameters: []
       responses:
         '200':
-          description: notifications found
+          description: confirmation email sent
+        '404':
+          description: user not found
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user:
+                  type: object
+                  properties:
+                    email:
+                      type: string
+                      example: user@example.com
+                  required:
+                  - email
+  "/api/v1/posts/{post_id}/comments":
+    parameters:
+    - name: post_id
+      in: path
+      required: true
+      schema:
+        type: integer
+    get:
+      summary: List comments
+      tags:
+      - Comments
+      responses:
+        '200':
+          description: comments list
           content:
             application/json:
-              examples:
-                success_response:
-                  value:
-                    data:
-                    - id: 1
-                      notification_type: like
-                      read: false
-                      created_at: '2026-05-29T12:00:00Z'
-                      actor:
-                        id: 2
-                        username: alice
-                    meta: {}
-                    errors: []
               schema:
                 type: object
                 properties:
@@ -262,29 +333,102 @@ paths:
                         id:
                           type: integer
                           example: 1
-                        notification_type:
+                        body:
                           type: string
-                          example: like
-                        read:
-                          type: boolean
-                          example: false
+                          example: Nice post!
                         created_at:
                           type: string
                           format: date-time
-                        actor:
+                        author:
                           type: object
                           properties:
                             id:
                               type: integer
-                              example: 2
+                              example: 1
                             username:
                               type: string
-                              example: alice
+                              example: john_doe
+                            email:
+                              type: string
+                              example: john@example.com
+                            created_at:
+                              type: string
+                              format: date-time
                       required:
                       - id
-                      - notification_type
-                      - read
+                      - body
                       - created_at
+                      - author
+                  meta:
+                    type: object
+                    properties:
+                      next_cursor:
+                        type: string
+                        nullable: true
+                        example: 
+                      limit:
+                        type: integer
+                        example: 20
+                      has_next:
+                        type: boolean
+                        example: false
+                    required:
+                    - limit
+                    - has_next
+                  errors:
+                    type: array
+                    items:
+                      type: string
+                    example: []
+                required:
+                - data
+    post:
+      summary: Create comment
+      tags:
+      - Comments
+      security:
+      - bearerAuth: []
+      parameters: []
+      responses:
+        '201':
+          description: comment created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 1
+                      body:
+                        type: string
+                        example: Nice post!
+                      created_at:
+                        type: string
+                        format: date-time
+                      author:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                            example: 1
+                          username:
+                            type: string
+                            example: john_doe
+                          email:
+                            type: string
+                            example: john@example.com
+                          created_at:
+                            type: string
+                            format: date-time
+                    required:
+                    - id
+                    - body
+                    - created_at
+                    - author
                   meta:
                     type: object
                     nullable: true
@@ -295,68 +439,68 @@ paths:
                     example: []
                 required:
                 - data
-  "/api/v1/notifications/unread_count":
-    get:
-      summary: Unread notifications count
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                comment:
+                  type: object
+                  properties:
+                    body:
+                      type: string
+                      example: Nice post!
+                  required:
+                  - body
+  "/api/v1/comments/{id}":
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+    delete:
+      summary: Delete comment
       tags:
-      - Notifications
+      - Comments
       security:
       - bearerAuth: []
       responses:
         '200':
-          description: count returned
-          content:
-            application/json:
-              examples:
-                success_response:
-                  value:
-                    count: 5
-              schema:
-                type: object
-                properties:
-                  count:
-                    type: integer
-                    example: 5
-                required:
-                - count
-  "/api/v1/posts":
+          description: comment deleted
+        '403':
+          description: not authorized
+  "/api/v1/feed":
     get:
-      summary: List posts
+      summary: Home feed
       tags:
-      - Posts
+      - Feed
       security:
       - bearerAuth: []
+      description: Posts from followed users (including own posts). Cursor pagination.
+      parameters:
+      - name: cursor
+        in: query
+        required: false
+        description: Pagination cursor
+        schema:
+          type: string
+      - name: limit
+        in: query
+        required: false
+        description: Items per page (default 20, max 50)
+        schema:
+          type: integer
       responses:
         '200':
-          description: posts list
+          description: feed loaded
           content:
             application/json:
-              examples:
-                success_response:
-                  value:
-                    data:
-                    - id: 1
-                      body: Hello world
-                      created_at: '2026-05-29T10:00:00Z'
-                      likes_count: 5
-                      comments_count: 2
-                      hashtags:
-                      - ruby
-                      - rails
-                      author:
-                        id: 1
-                        username: john_doe
-                    meta:
-                      current_page: 1
-                      next_page: 
-                      prev_page: 
-                      total_pages: 1
-                      total_count: 1
-                    errors: []
               schema:
                 type: object
                 properties:
-                  data:
+                  items:
                     type: array
                     items:
                       type: object
@@ -396,30 +540,58 @@ paths:
                       - id
                       - body
                       - created_at
+                  next_cursor:
+                    type: string
+                    nullable: true
+  "/api/v1/feed/global":
+    get:
+      summary: Global feed
+      tags:
+      - Feed
+      responses:
+        '200':
+          description: feed loaded
+  "/api/v1/follow_requests":
+    get:
+      summary: List pending follow requests
+      tags:
+      - Follow Requests
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: follow requests list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          example: 1
+                        follower:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                              example: 2
+                            username:
+                              type: string
+                              example: john_doe
+                            display_name:
+                              type: string
+                              example: John Doe
+                      required:
+                      - id
+                      - follower
                   meta:
                     type: object
-                    properties:
-                      current_page:
-                        type: integer
-                        example: 1
-                      next_page:
-                        type: integer
-                        nullable: true
-                        example: 
-                      prev_page:
-                        type: integer
-                        nullable: true
-                        example: 
-                      total_pages:
-                        type: integer
-                        example: 1
-                      total_count:
-                        type: integer
-                        example: 10
-                    required:
-                    - current_page
-                    - total_pages
-                    - total_count
+                    nullable: true
                   errors:
                     type: array
                     items:
@@ -427,6 +599,393 @@ paths:
                     example: []
                 required:
                 - data
+  "/api/v1/follow_requests/{id}/accept":
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+    post:
+      summary: Accept follow request
+      tags:
+      - Follow Requests
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: follow request accepted
+        '404':
+          description: not found
+  "/api/v1/follow_requests/{id}/reject":
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+    post:
+      summary: Reject follow request
+      tags:
+      - Follow Requests
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: follow request rejected
+  "/api/v1/hashtags/{tag}/posts":
+    get:
+      summary: Get posts by hashtag
+      tags:
+      - Hashtags
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: tag
+        in: path
+        description: Hashtag name
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: posts found
+  "/api/v1/notifications":
+    get:
+      summary: List notifications
+      tags:
+      - Notifications
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: notifications found
+          content:
+            application/json:
+              examples:
+                success_response:
+                  value:
+                    success: true
+                    data:
+                    - id: 1
+                      type: like
+                      read: false
+                      created_at: '2026-05-29T12:00:00Z'
+                      actor:
+                        id: 2
+                        username: alice
+                    meta:
+                      next_cursor: 
+                      limit: 20
+                      has_next: false
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          example: 1
+                        type:
+                          type: string
+                          example: like
+                        read:
+                          type: boolean
+                          example: false
+                        created_at:
+                          type: string
+                          format: date-time
+                        actor:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                              example: 2
+                            username:
+                              type: string
+                              example: alice
+                      required:
+                      - id
+                      - type
+                      - read
+                      - created_at
+                  meta:
+                    type: object
+                    nullable: true
+                  errors:
+                    type: array
+                    items:
+                      type: string
+                    example: []
+                required:
+                - data
+  "/api/v1/notifications/{id}/read":
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+    patch:
+      summary: Mark notification as read
+      tags:
+      - Notifications
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: notification marked as read
+  "/api/v1/notifications/read_all":
+    patch:
+      summary: Mark all notifications as read
+      tags:
+      - Notifications
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: all notifications marked as read
+  "/api/v1/posts":
+    post:
+      summary: Create post
+      tags:
+      - Posts
+      security:
+      - bearerAuth: []
+      description: Create a new post. Idempotency key is required.
+      parameters:
+      - name: Idempotency-Key
+        in: header
+        required: true
+        description: UUID v4 for idempotency
+        schema:
+          type: string
+      responses:
+        '201':
+          description: post created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 1
+                      body:
+                        type: string
+                        example: Hello world
+                      created_at:
+                        type: string
+                        format: date-time
+                      likes_count:
+                        type: integer
+                        example: 5
+                      comments_count:
+                        type: integer
+                        example: 2
+                      hashtags:
+                        type: array
+                        items:
+                          type: string
+                        example:
+                        - ruby
+                        - rails
+                      author:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                            example: 1
+                          username:
+                            type: string
+                            example: john_doe
+                    required:
+                    - id
+                    - body
+                    - created_at
+                  meta:
+                    type: object
+                    nullable: true
+                  errors:
+                    type: array
+                    items:
+                      type: string
+                    example: []
+                required:
+                - data
+        '422':
+          description: validation failed
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                post:
+                  type: object
+                  properties:
+                    content:
+                      type: string
+                      example: 'Hello #world @alice'
+                      description: 1-500 characters
+                    image_id:
+                      type: string
+                      nullable: true
+                      description: Signed blob ID for image
+                  required:
+                  - content
+  "/api/v1/posts/{id}":
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+    get:
+      summary: Show post
+      tags:
+      - Posts
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: post found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 1
+                      body:
+                        type: string
+                        example: Hello world
+                      created_at:
+                        type: string
+                        format: date-time
+                      likes_count:
+                        type: integer
+                        example: 5
+                      comments_count:
+                        type: integer
+                        example: 2
+                      hashtags:
+                        type: array
+                        items:
+                          type: string
+                        example:
+                        - ruby
+                        - rails
+                      author:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                            example: 1
+                          username:
+                            type: string
+                            example: john_doe
+                    required:
+                    - id
+                    - body
+                    - created_at
+                  meta:
+                    type: object
+                    nullable: true
+                  errors:
+                    type: array
+                    items:
+                      type: string
+                    example: []
+                required:
+                - data
+        '404':
+          description: post not found
+    delete:
+      summary: Delete post
+      tags:
+      - Posts
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: post deleted
+        '403':
+          description: not your post
+  "/api/v1/posts/{id}/like":
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+    post:
+      summary: Like post
+      tags:
+      - Posts
+      security:
+      - bearerAuth: []
+      responses:
+        '201':
+          description: post liked
+    delete:
+      summary: Unlike post
+      tags:
+      - Posts
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: post unliked
+  "/api/v1/posts/{id}/report":
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+    post:
+      summary: Report a post
+      tags:
+      - Posts
+      security:
+      - bearerAuth: []
+      parameters: []
+      responses:
+        '201':
+          description: report created
+        '422':
+          description: already reported
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                report:
+                  type: object
+                  properties:
+                    reason:
+                      type: string
+                      example: Spam
+                    category:
+                      type: string
+                      enum:
+                      - spam
+                      - abuse
+                      - other
+                  required:
+                  - reason
   "/api/v1/me":
     get:
       summary: Current user profile
@@ -487,6 +1046,31 @@ paths:
                     example: []
                 required:
                 - data
+    patch:
+      summary: Update current user profile
+      tags:
+      - Profile
+      security:
+      - bearerAuth: []
+      parameters: []
+      responses:
+        '200':
+          description: profile updated
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user:
+                  type: object
+                  properties:
+                    display_name:
+                      type: string
+                      example: John Doe
+                    bio:
+                      type: string
+                      example: Ruby developer
   "/api/v1/search":
     get:
       summary: Global search
@@ -503,22 +1087,58 @@ paths:
       responses:
         '200':
           description: search results
-  "/api/v1/users/search":
+  "/api/v1/users/{username}":
+    parameters:
+    - name: username
+      in: path
+      required: true
+      schema:
+        type: string
     get:
-      summary: Search users
+      summary: Get user profile
       tags:
       - Users
       security:
       - bearerAuth: []
-      parameters:
-      - name: query
-        in: query
-        description: Search query
-        schema:
-          type: string
       responses:
         '200':
-          description: users found
+          description: user profile found
+          content:
+            application/json:
+              examples:
+                success_response:
+                  value:
+                    data:
+                      id: 1
+                      username: john_doe
+                      display_name: John Doe
+                      bio: Ruby developer
+                    meta: {}
+                    errors: []
+        '404':
+          description: user not found
+          content:
+            application/json:
+              examples:
+                not_found:
+                  value:
+                    error: User not found
+  "/api/v1/users/{username}/posts":
+    parameters:
+    - name: username
+      in: path
+      required: true
+      schema:
+        type: string
+    get:
+      summary: List user posts
+      tags:
+      - Users
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: posts found
           content:
             application/json:
               examples:
@@ -526,35 +1146,273 @@ paths:
                   value:
                     data:
                     - id: 1
-                      username: john_doe
-                      email: john@example.com
-                      created_at: '2026-05-29T10:00:00Z'
+                      body: Hello world
+                      created_at: '2026-06-02T12:00:00Z'
+                      likes_count: 5
+                      comments_count: 2
                     meta: {}
                     errors: []
+  "/api/v1/users/{username}/followers":
+    parameters:
+    - name: username
+      in: path
+      required: true
+      schema:
+        type: string
+    get:
+      summary: List user followers
+      tags:
+      - Users
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: followers found
+          content:
+            application/json:
+              examples:
+                success_response:
+                  value:
+                    data:
+                    - id: 2
+                      username: alice
+                      display_name: Alice
+                    meta: {}
+                    errors: []
+  "/api/v1/users/{username}/following":
+    parameters:
+    - name: username
+      in: path
+      required: true
+      schema:
+        type: string
+    get:
+      summary: List user following
+      tags:
+      - Users
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: following found
+          content:
+            application/json:
+              examples:
+                success_response:
+                  value:
+                    data:
+                    - id: 3
+                      username: bob
+                      display_name: Bob
+                    meta: {}
+                    errors: []
+  "/api/v1/users/{username}/follow":
+    parameters:
+    - name: username
+      in: path
+      schema:
+        type: string
+      required: true
+    post:
+      summary: Follow user
+      tags:
+      - Users
+      security:
+      - bearerAuth: []
+      responses:
+        '201':
+          description: follow created
+          content:
+            application/json:
               schema:
                 type: object
                 properties:
                   data:
+                    type: object
+                    properties:
+                      following:
+                        type: boolean
+                      requested:
+                        type: boolean
+                      status:
+                        type: string
+                      user_id:
+                        type: integer
+                  meta:
+                    type: object
+                    nullable: true
+                  errors:
                     type: array
                     items:
-                      type: object
-                      properties:
-                        id:
-                          type: integer
-                          example: 1
-                        username:
-                          type: string
-                          example: john_doe
-                        email:
-                          type: string
-                          example: john@example.com
-                        created_at:
-                          type: string
-                          format: date-time
-                      required:
-                      - id
-                      - username
-                      - email
+                      type: string
+                    example: []
+                required:
+                - data
+    delete:
+      summary: Unfollow user
+      tags:
+      - Users
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: username
+        in: path
+        schema:
+          type: string
+        required: true
+      responses:
+        '200':
+          description: user unfollowed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      following:
+                        type: boolean
+                      user_id:
+                        type: integer
+                  meta:
+                    type: object
+                    nullable: true
+                  errors:
+                    type: array
+                    items:
+                      type: string
+                    example: []
+                required:
+                - data
+  "/api/v1/users/{username}/block":
+    parameters:
+    - name: username
+      in: path
+      required: true
+      schema:
+        type: string
+    post:
+      summary: Block user
+      tags:
+      - Users
+      security:
+      - bearerAuth: []
+      responses:
+        '201':
+          description: user blocked
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      blocked:
+                        type: boolean
+                      user_id:
+                        type: integer
+                  meta:
+                    type: object
+                    nullable: true
+                  errors:
+                    type: array
+                    items:
+                      type: string
+                    example: []
+                required:
+                - data
+    delete:
+      summary: Unblock user
+      tags:
+      - Users
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: user unblocked
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      blocked:
+                        type: boolean
+                      user_id:
+                        type: integer
+                  meta:
+                    type: object
+                    nullable: true
+                  errors:
+                    type: array
+                    items:
+                      type: string
+                    example: []
+                required:
+                - data
+  "/api/v1/users/{username}/mute":
+    parameters:
+    - name: username
+      in: path
+      schema:
+        type: string
+      required: true
+    post:
+      summary: Mute user
+      tags:
+      - Users
+      security:
+      - bearerAuth: []
+      responses:
+        '201':
+          description: user muted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      muted:
+                        type: boolean
+                      user_id:
+                        type: integer
+                  meta:
+                    type: object
+                    nullable: true
+                  errors:
+                    type: array
+                    items:
+                      type: string
+                    example: []
+                required:
+                - data
+    delete:
+      summary: Unmute user
+      tags:
+      - Users
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: user unmuted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      muted:
+                        type: boolean
+                      user_id:
+                        type: integer
                   meta:
                     type: object
                     nullable: true

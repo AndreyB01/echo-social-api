@@ -1,4 +1,5 @@
 require "swagger_helper"
+require "digest"
 
 RSpec.describe "Auth API", type: :request do
   path "/api/v1/auth/register" do
@@ -30,6 +31,18 @@ RSpec.describe "Auth API", type: :request do
                 }
 
       response "201", "user created" do
+        let(:user) do
+          {
+            user: {
+              email: "john@example.com",
+              username: "john_doe",
+              display_name: "John Doe",
+              password: "password123",
+              password_confirmation: "password123"
+            }
+          }
+        end
+
         example "application/json", :success_response, {
           data: {
             id: 1,
@@ -51,6 +64,17 @@ RSpec.describe "Auth API", type: :request do
 
       response "422", "validation failed" do
         schema ValidationErrorSchema
+
+        let(:user) do
+          {
+            user: {
+              email: "",
+              username: "",
+              password: "123",
+              password_confirmation: "456"
+            }
+          }
+        end
 
         example "application/json", :validation_error, {
           errors: [
@@ -94,6 +118,25 @@ RSpec.describe "Auth API", type: :request do
                 }
 
       response "200", "login success" do
+        let!(:existing_user) do
+          create(
+            :user,
+            email: "john@example.com",
+            password: "password123",
+            password_confirmation: "password123",
+            confirmed_at: Time.current
+          )
+        end
+
+        let(:user) do
+          {
+            user: {
+              email: "john@example.com",
+              password: "password123"
+            }
+          }
+        end
+
         example "application/json", :success_response, {
           data: {
             access_token: "jwt_access_token",
@@ -110,6 +153,15 @@ RSpec.describe "Auth API", type: :request do
       response "401", "invalid credentials" do
         schema ErrorSchema
 
+        let(:user) do
+          {
+            user: {
+              email: "wrong@example.com",
+              password: "wrongpassword"
+            }
+          }
+        end
+
         example "application/json", :invalid_credentials, {
           error: "Invalid credentials"
         }
@@ -119,8 +171,66 @@ RSpec.describe "Auth API", type: :request do
     end
   end
 
+  path "/api/v1/auth/refresh" do
+    post "Refresh access token" do
+      tags "Auth"
+
+      consumes "application/json"
+      produces "application/json"
+
+      parameter name: :refresh_token,
+                in: :body,
+                schema: {
+                  type: :object,
+                  properties: {
+                    refresh_token: {
+                      type: :string,
+                      example: "refresh_token_value"
+                    }
+                  },
+                  required: ["refresh_token"]
+                }
+
+      response "200", "token refreshed" do
+        let(:user) { create(:user) }
+
+        let(:raw_refresh_token) { "valid_refresh_token" }
+
+        let!(:user_session) do
+          UserSession.create!(
+            user: user,
+            refresh_token_digest: Digest::SHA256.hexdigest(raw_refresh_token),
+            expires_at: 30.days.from_now
+          )
+        end
+
+        let(:refresh_token) do
+          { refresh_token: raw_refresh_token }
+        end
+
+        example "application/json", :success_response, {
+          access_token: "new_access_token",
+          refresh_token: "new_refresh_token",
+          token_type: "Bearer"
+        }
+
+        run_test!
+      end
+
+      response "401", "invalid refresh token" do
+        let(:refresh_token) { { refresh_token: "invalid_refresh_token" } }
+
+        example "application/json", :invalid_token, {
+          error: "Invalid refresh token"
+        }
+
+        run_test!
+      end
+    end
+  end
+
   path "/api/v1/auth/logout" do
-    delete "Logout user" do
+    post "Logout user" do
       tags "Auth"
 
       consumes "application/json"
@@ -140,6 +250,19 @@ RSpec.describe "Auth API", type: :request do
                 }
 
       response "200", "logout success" do
+        let(:user) { create(:user) }
+        let(:raw_refresh_token) { "valid_refresh_token" }
+        let!(:user_session) do
+          UserSession.create!(
+            user: user,
+            refresh_token_digest: Digest::SHA256.hexdigest(raw_refresh_token),
+            expires_at: 30.days.from_now,
+            user_agent: "Rswag test",
+            ip_address: "127.0.0.1"
+          )
+        end
+        let(:refresh_token) { { refresh_token: raw_refresh_token } }
+
         example "application/json", :success_response, {
           message: "Logged out successfully"
         }
@@ -148,10 +271,88 @@ RSpec.describe "Auth API", type: :request do
       end
 
       response "401", "invalid refresh token" do
+        let(:refresh_token) { { refresh_token: "invalid_refresh_token" } }
+
         example "application/json", :invalid_token, {
           error: "Invalid refresh token"
         }
 
+        run_test!
+      end
+    end
+  end
+
+  path "/api/v1/auth/confirm" do
+    post "Confirm email" do
+      tags "Auth"
+
+      consumes "application/json"
+      produces "application/json"
+
+      parameter name: :token,
+                in: :body,
+                schema: {
+                  type: :object,
+                  properties: {
+                    token: {
+                      type: :string,
+                      example: "confirmation_token"
+                    }
+                  },
+                  required: ["token"]
+                }
+
+      response "200", "email confirmed" do
+        let(:token) do
+          {
+            token: "valid_confirmation_token"
+          }
+        end
+
+        run_test!
+      end
+
+      response "422", "invalid token" do
+        let(:token) do
+          {
+            token: "invalid_token"
+          }
+        end
+
+        run_test!
+      end
+    end
+  end
+
+  path "/api/v1/auth/resend_confirmation" do
+    post "Resend confirmation email" do
+      tags "Auth"
+      consumes "application/json"
+      produces "application/json"
+      description "Resend confirmation email to user"
+
+      parameter name: :user,
+                in: :body,
+                schema: {
+                  type: :object,
+                  properties: {
+                    user: {
+                      type: :object,
+                      properties: {
+                        email: { type: :string, example: "user@example.com" }
+                      },
+                      required: ["email"]
+                    }
+                  }
+                }
+
+      response "200", "confirmation email sent" do
+        let(:user) { { user: { email: "test@example.com" } } }
+        run_test!
+      end
+
+      response "404", "user not found" do
+        let(:user) { { user: { email: "not_exist@example.com" } } }
         run_test!
       end
     end

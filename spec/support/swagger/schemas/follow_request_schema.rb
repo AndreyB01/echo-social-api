@@ -1,25 +1,13 @@
 # frozen_string_literal: true
 
-NotificationSchema = {
+FollowRequestSchema = {
   type: :object,
   properties: {
     id: {
       type: :integer,
       example: 1
     },
-    type: {
-      type: :string,
-      example: "like"
-    },
-    read: {
-      type: :boolean,
-      example: false
-    },
-    created_at: {
-      type: :string,
-      format: :"date-time"
-    },
-    actor: {
+    follower: {
       type: :object,
       properties: {
         id: {
@@ -28,15 +16,18 @@ NotificationSchema = {
         },
         username: {
           type: :string,
-          example: "alice"
+          example: "john_doe"
+        },
+        display_name: {
+          type: :string,
+          example: "John Doe"
         }
       }
     }
   },
   required: %w[
     id
-    type
-    read
-    created_at
+    follower
   ]
 }.freeze
+

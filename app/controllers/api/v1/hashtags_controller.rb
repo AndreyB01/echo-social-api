@@ -1,6 +1,6 @@
 class Api::V1::HashtagsController < ApplicationController
   def posts
-    hashtag = Hashtag.find_by!(name: params[:id].downcase)
+    hashtag = Hashtag.find_by!(name: params[:tag].downcase)
 
     posts = hashtag.posts
                    .includes(:user, :hashtags)

@@ -1,42 +1,46 @@
 # frozen_string_literal: true
 
-NotificationSchema = {
+CommentSchema = {
   type: :object,
   properties: {
     id: {
       type: :integer,
       example: 1
     },
-    type: {
+    body: {
       type: :string,
-      example: "like"
-    },
-    read: {
-      type: :boolean,
-      example: false
+      example: "Nice post!"
     },
     created_at: {
       type: :string,
       format: :"date-time"
     },
-    actor: {
+    author: {
       type: :object,
       properties: {
         id: {
           type: :integer,
-          example: 2
+          example: 1
         },
         username: {
           type: :string,
-          example: "alice"
+          example: "john_doe"
+        },
+        email: {
+          type: :string,
+          example: "john@example.com"
+        },
+        created_at: {
+          type: :string,
+          format: :"date-time"
         }
       }
     }
   },
   required: %w[
     id
-    type
-    read
+    body
     created_at
+    author
   ]
 }.freeze

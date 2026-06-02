@@ -2,7 +2,7 @@ module Api
   module V1
     module Auth
       class EmailConfirmationsController < Api::BaseController
-        def show
+        def create
           Auth::EmailConfirmationService.call(
             token: params[:token]
           )
