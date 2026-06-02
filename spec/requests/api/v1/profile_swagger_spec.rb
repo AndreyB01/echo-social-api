@@ -35,5 +35,54 @@ RSpec.describe "Profile API", type: :request do
         run_test!
       end
     end
+
+    patch "Update current user profile" do
+      tags "Profile"
+
+      consumes "application/json"
+      produces "application/json"
+
+      security [ bearerAuth: [] ]
+
+      parameter name: :user,
+                in: :body,
+                schema: {
+                  type: :object,
+                  properties: {
+                    user: {
+                      type: :object,
+                      properties: {
+                        display_name: {
+                          type: :string,
+                          example: "John Doe"
+                        },
+                        bio: {
+                          type: :string,
+                          example: "Ruby developer"
+                        }
+                      }
+                    }
+                  }
+                }
+
+      response "200", "profile updated" do
+        let(:current_user) { create(:user) }
+
+        let(:Authorization) do
+          "Bearer #{Jwt::Encoder.call(user_id: current_user.id)}"
+        end
+
+        let(:user) do
+          {
+            user: {
+              display_name: "Updated Name",
+              bio: "Updated Bio"
+            }
+          }
+        end
+
+        run_test!
+      end
+    end
   end
 end
