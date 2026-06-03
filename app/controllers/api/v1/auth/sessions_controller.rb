@@ -4,7 +4,7 @@ module Api
       class SessionsController < Api::BaseController
         def create
           tokens = ::Auth::LoginService.call(
-            email: login_params[:email],
+            login: login_params[:login],
             password: login_params[:password],
             user_agent: request.user_agent,
             ip_address: request.remote_ip
@@ -23,7 +23,7 @@ module Api
 
         def login_params
           params.require(:user).permit(
-            :email,
+            :login,
             :password
           )
         end
