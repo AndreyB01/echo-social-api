@@ -7,18 +7,21 @@ class ApplicationController < ActionController::API
   private
 
   def authenticate_user!
-    header = request.headers["Authorization"]
-    return render_unauthorized unless header
+      header = request.headers["Authorization"]
+      return render_unauthorized unless header
 
-    token = header.split(" ").last
+      token = header.split(" ").last
 
-    begin
-      decoded_token = Jwt::Decoder.call(token)
-      @current_user = User.find(decoded_token["user_id"])
-    rescue JWT::DecodeError,
-           ActiveRecord::RecordNotFound
-      return render_unauthorized
-    end
+      decoded_token =
+        Jwt::AccessTokenDecoder.call(token)
+
+      return render_unauthorized unless decoded_token
+
+      @current_user =
+        User.find(decoded_token["sub"])
+
+    rescue ActiveRecord::RecordNotFound
+      render_unauthorized
   end
 
   def authorize(record, query)
