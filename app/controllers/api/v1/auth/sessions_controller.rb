@@ -14,7 +14,8 @@ module Api
             data: {
               access_token: tokens[:access_token],
               refresh_token: tokens[:refresh_token],
-              token_type: "Bearer"
+              token_type: "Bearer",
+              expires_in: 15.minutes.to_i
             }
           )
         end
