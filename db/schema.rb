@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_05_29_151759) do
+ActiveRecord::Schema[7.1].define(version: 2026_06_03_081607) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "citext"
   enable_extension "pg_trgm"
@@ -52,6 +52,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_05_29_151759) do
     t.index ["blocked_id"], name: "index_blocks_on_blocked_id"
     t.index ["blocker_id", "blocked_id"], name: "index_blocks_on_blocker_id_and_blocked_id", unique: true
     t.index ["blocker_id"], name: "index_blocks_on_blocker_id"
+    t.check_constraint "blocker_id <> blocked_id", name: "blocks_cannot_block_self"
   end
 
   create_table "comments", force: :cascade do |t|
@@ -75,6 +76,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_05_29_151759) do
     t.index ["followed_id"], name: "index_follows_on_followed_id"
     t.index ["follower_id", "followed_id"], name: "index_follows_on_follower_id_and_followed_id", unique: true
     t.index ["follower_id"], name: "index_follows_on_follower_id"
+    t.check_constraint "follower_id <> followed_id", name: "follows_cannot_follow_self"
   end
 
   create_table "hashtags", force: :cascade do |t|
@@ -103,6 +105,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_05_29_151759) do
     t.index ["muted_id"], name: "index_mutes_on_muted_id"
     t.index ["muter_id", "muted_id"], name: "index_mutes_on_muter_id_and_muted_id", unique: true
     t.index ["muter_id"], name: "index_mutes_on_muter_id"
+    t.check_constraint "muter_id <> muted_id", name: "mutes_cannot_mute_self"
   end
 
   create_table "notifications", force: :cascade do |t|
@@ -150,9 +153,12 @@ ActiveRecord::Schema[7.1].define(version: 2026_05_29_151759) do
     t.integer "likes_count", default: 0, null: false
     t.integer "comments_count", default: 0, null: false
     t.datetime "deleted_at"
+    t.datetime "hidden_at"
+    t.tsvector "search_vector"
     t.index ["body"], name: "index_posts_on_body_trgm", opclass: :gin_trgm_ops, using: :gin
     t.index ["created_at"], name: "index_posts_on_created_at"
     t.index ["deleted_at"], name: "index_posts_on_deleted_at"
+    t.index ["search_vector"], name: "index_posts_on_search_vector", using: :gin
     t.index ["user_id", "created_at"], name: "index_posts_on_user_id_and_created_at"
     t.index ["user_id"], name: "index_posts_on_user_id"
   end
@@ -185,6 +191,9 @@ ActiveRecord::Schema[7.1].define(version: 2026_05_29_151759) do
     t.datetime "confirmed_at"
     t.integer "followers_count", default: 0, null: false
     t.integer "following_count", default: 0, null: false
+    t.boolean "admin", default: false, null: false
+    t.datetime "banned_at"
+    t.integer "posts_count", default: 0, null: false
     t.index ["confirmation_token_digest"], name: "index_users_on_confirmation_token_digest", unique: true
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["username"], name: "index_users_on_username", unique: true
