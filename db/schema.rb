@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_05_29_151759) do
+ActiveRecord::Schema[7.1].define(version: 2026_06_03_075403) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "citext"
   enable_extension "pg_trgm"
@@ -185,6 +185,9 @@ ActiveRecord::Schema[7.1].define(version: 2026_05_29_151759) do
     t.datetime "confirmed_at"
     t.integer "followers_count", default: 0, null: false
     t.integer "following_count", default: 0, null: false
+    t.boolean "admin", default: false, null: false
+    t.datetime "banned_at"
+    t.integer "posts_count", default: 0, null: false
     t.index ["confirmation_token_digest"], name: "index_users_on_confirmation_token_digest", unique: true
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["username"], name: "index_users_on_username", unique: true
