@@ -3,13 +3,13 @@ module Auth
     class InvalidCredentialsError < StandardError; end
 
     def self.call(
-      email:,
+      login:,
       password:,
       user_agent:,
       ip_address:
     )
       new(
-        email,
+        login,
         password,
         user_agent,
         ip_address
@@ -17,19 +17,21 @@ module Auth
     end
 
     def initialize(
-      email,
+      login,
       password,
       user_agent,
       ip_address
     )
-      @email = email
+      @login = login
       @password = password
       @user_agent = user_agent
       @ip_address = ip_address
     end
 
     def call
-      user = User.find_by(email: email)
+      user =
+        User.find_by(email: login) ||
+        User.find_by(username: login)
 
       raise InvalidCredentialsError unless user
 
@@ -71,7 +73,7 @@ module Auth
     private
 
     attr_reader(
-      :email,
+      :login,
       :password,
       :user_agent,
       :ip_address
