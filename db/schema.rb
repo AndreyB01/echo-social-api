@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_06_03_080450) do
+ActiveRecord::Schema[7.1].define(version: 2026_06_03_081607) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "citext"
   enable_extension "pg_trgm"
@@ -52,6 +52,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_06_03_080450) do
     t.index ["blocked_id"], name: "index_blocks_on_blocked_id"
     t.index ["blocker_id", "blocked_id"], name: "index_blocks_on_blocker_id_and_blocked_id", unique: true
     t.index ["blocker_id"], name: "index_blocks_on_blocker_id"
+    t.check_constraint "blocker_id <> blocked_id", name: "blocks_cannot_block_self"
   end
 
   create_table "comments", force: :cascade do |t|
@@ -75,6 +76,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_06_03_080450) do
     t.index ["followed_id"], name: "index_follows_on_followed_id"
     t.index ["follower_id", "followed_id"], name: "index_follows_on_follower_id_and_followed_id", unique: true
     t.index ["follower_id"], name: "index_follows_on_follower_id"
+    t.check_constraint "follower_id <> followed_id", name: "follows_cannot_follow_self"
   end
 
   create_table "hashtags", force: :cascade do |t|
@@ -103,6 +105,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_06_03_080450) do
     t.index ["muted_id"], name: "index_mutes_on_muted_id"
     t.index ["muter_id", "muted_id"], name: "index_mutes_on_muter_id_and_muted_id", unique: true
     t.index ["muter_id"], name: "index_mutes_on_muter_id"
+    t.check_constraint "muter_id <> muted_id", name: "mutes_cannot_mute_self"
   end
 
   create_table "notifications", force: :cascade do |t|
