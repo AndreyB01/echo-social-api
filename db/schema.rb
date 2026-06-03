@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_06_03_075403) do
+ActiveRecord::Schema[7.1].define(version: 2026_06_03_080450) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "citext"
   enable_extension "pg_trgm"
@@ -150,9 +150,12 @@ ActiveRecord::Schema[7.1].define(version: 2026_06_03_075403) do
     t.integer "likes_count", default: 0, null: false
     t.integer "comments_count", default: 0, null: false
     t.datetime "deleted_at"
+    t.datetime "hidden_at"
+    t.tsvector "search_vector"
     t.index ["body"], name: "index_posts_on_body_trgm", opclass: :gin_trgm_ops, using: :gin
     t.index ["created_at"], name: "index_posts_on_created_at"
     t.index ["deleted_at"], name: "index_posts_on_deleted_at"
+    t.index ["search_vector"], name: "index_posts_on_search_vector", using: :gin
     t.index ["user_id", "created_at"], name: "index_posts_on_user_id_and_created_at"
     t.index ["user_id"], name: "index_posts_on_user_id"
   end
