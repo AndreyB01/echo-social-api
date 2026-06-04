@@ -73,6 +73,13 @@ Rails.application.routes.draw do
           get :unread_count
         end
       end
+
+      namespace :admin do
+        resources :reports, only: %i[index update]
+
+        patch "posts/:id/hide", to: "posts#hide"
+        patch "users/:id/ban", to: "users#ban"
+      end
     end
   end
 end
