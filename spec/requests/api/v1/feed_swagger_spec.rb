@@ -25,18 +25,4 @@ RSpec.describe "Feed API", type: :request do
       end
     end
   end
-
-  path "/api/v1/feed/global" do
-    get "Global feed" do
-      tags "Feed"
-
-      produces "application/json"
-
-      response "200", "feed loaded" do
-        let!(:user) { create(:user) }
-
-        run_test!
-      end
-    end
-  end
 end
