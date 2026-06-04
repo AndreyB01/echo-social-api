@@ -16,7 +16,7 @@ RSpec.describe "Hashtags API", swagger_doc: "v1/swagger.yaml", type: :request do
 
       response "200", "posts found" do
         let(:user) { create(:user) }
-        let(:token) { Jwt::Encoder.call(user_id: user.id) }
+        let(:token) { auth_token_for(user) }
         let(:Authorization) { "Bearer #{token}" }
 
         let(:tag) { "ruby" }

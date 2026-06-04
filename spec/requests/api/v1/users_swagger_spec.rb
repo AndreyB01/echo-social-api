@@ -12,7 +12,7 @@ RSpec.describe "Users API", type: :request do
 
       response "200", "user profile found" do
         let(:user) { create(:user, username: "john_doe") }
-        let(:Authorization) { "Bearer #{Jwt::Encoder.call(user_id: user.id)}" }
+        let(:Authorization) { "Bearer #{auth_token_for(user)}" }
         let(:username) { user.username }
 
         example "application/json", :success_response, {
@@ -31,7 +31,7 @@ RSpec.describe "Users API", type: :request do
 
       response "404", "user not found" do
         let(:current_user) { create(:user) }
-        let(:Authorization) { "Bearer #{Jwt::Encoder.call(user_id: current_user.id)}" }
+        let(:Authorization) { "Bearer #{auth_token_for(current_user)}" }
         let(:username) { "unknown" }
 
         example "application/json", :not_found, {
@@ -54,7 +54,7 @@ RSpec.describe "Users API", type: :request do
 
       response "200", "posts found" do
         let(:user) { create(:user, username: "john_doe") }
-        let(:Authorization) { "Bearer #{Jwt::Encoder.call(user_id: user.id)}" }
+        let(:Authorization) { "Bearer #{auth_token_for(user)}" }
         let(:username) { user.username }
 
         example "application/json", :success_response, {
@@ -87,7 +87,7 @@ RSpec.describe "Users API", type: :request do
 
       response "200", "followers found" do
         let(:user) { create(:user, username: "john_doe") }
-        let(:Authorization) { "Bearer #{Jwt::Encoder.call(user_id: user.id)}" }
+        let(:Authorization) { "Bearer #{auth_token_for(user)}" }
         let(:username) { user.username }
 
         example "application/json", :success_response, {
@@ -114,7 +114,7 @@ RSpec.describe "Users API", type: :request do
 
       response "200", "following found" do
         let(:user) { create(:user, username: "john_doe") }
-        let(:Authorization) { "Bearer #{Jwt::Encoder.call(user_id: user.id)}" }
+        let(:Authorization) { "Bearer #{auth_token_for(user)}" }
         let(:username) { user.username }
 
         example "application/json", :success_response, {
@@ -143,7 +143,7 @@ RSpec.describe "Users API", type: :request do
       response "201", "follow created" do
         let(:current_user) { create(:user) }
         let(:target_user) { create(:user) }
-        let(:Authorization) { "Bearer #{Jwt::Encoder.call(user_id: current_user.id)}" }
+        let(:Authorization) { "Bearer #{auth_token_for(current_user)}" }
         let(:username) { target_user.username }
 
         schema BaseResponseSchema.call(
@@ -173,7 +173,7 @@ RSpec.describe "Users API", type: :request do
       response "200", "user unfollowed" do
         let(:current_user) { create(:user) }
         let(:target_user) { create(:user) }
-        let(:Authorization) { "Bearer #{Jwt::Encoder.call(user_id: current_user.id)}" }
+        let(:Authorization) { "Bearer #{auth_token_for(current_user)}" }
         let(:username) { target_user.username }
 
         before do
@@ -211,7 +211,7 @@ RSpec.describe "Users API", type: :request do
       response "201", "user blocked" do
         let(:current_user) { create(:user) }
         let(:target_user) { create(:user) }
-        let(:Authorization) { "Bearer #{Jwt::Encoder.call(user_id: current_user.id)}" }
+        let(:Authorization) { "Bearer #{auth_token_for(current_user)}" }
         let(:username) { target_user.username }
 
         schema BaseResponseSchema.call(
@@ -237,7 +237,7 @@ RSpec.describe "Users API", type: :request do
       response "200", "user unblocked" do
         let(:current_user) { create(:user) }
         let(:target_user) { create(:user) }
-        let(:Authorization) { "Bearer #{Jwt::Encoder.call(user_id: current_user.id)}" }
+        let(:Authorization) { "Bearer #{auth_token_for(current_user)}" }
         let(:username) { target_user.username }
 
         before do
@@ -272,7 +272,7 @@ RSpec.describe "Users API", type: :request do
         let(:current_user) { create(:user) }
         let(:target_user) { create(:user) }
         let(:username) { target_user.username }
-        let(:Authorization) { "Bearer #{Jwt::Encoder.call(user_id: current_user.id)}" }
+        let(:Authorization) { "Bearer #{auth_token_for(current_user)}" }
 
         schema BaseResponseSchema.call(
           data_schema: {
@@ -298,7 +298,7 @@ RSpec.describe "Users API", type: :request do
         let(:current_user) { create(:user) }
         let(:target_user) { create(:user) }
         let(:username) { target_user.username }
-        let(:Authorization) { "Bearer #{Jwt::Encoder.call(user_id: current_user.id)}" }
+        let(:Authorization) { "Bearer #{auth_token_for(current_user)}" }
 
         before do
           Mute.create!(muter: current_user, muted: target_user)
