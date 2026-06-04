@@ -32,7 +32,7 @@ RSpec.describe "Search API", type: :request do
         end
 
         let(:Authorization) do
-          token = Jwt::Encoder.call(user_id: user.id)
+          token = auth_token_for(user)
 
           "Bearer #{token}"
         end

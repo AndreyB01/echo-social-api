@@ -34,7 +34,7 @@ RSpec.describe "Posts API", type: :request do
 
       response "201", "post created" do
         let(:user) { create(:user) }
-        let(:Authorization) { "Bearer #{Jwt::Encoder.call(user_id: user.id)}" }
+        let(:Authorization) { "Bearer #{auth_token_for(user)}" }
         let(:'Idempotency-Key') { SecureRandom.uuid }
         let(:post) { { post: { content: "My first post" } } }
 
@@ -45,7 +45,7 @@ RSpec.describe "Posts API", type: :request do
 
       response "422", "validation failed" do
         let(:user) { create(:user) }
-        let(:Authorization) { "Bearer #{Jwt::Encoder.call(user_id: user.id)}" }
+        let(:Authorization) { "Bearer #{auth_token_for(user)}" }
         let(:'Idempotency-Key') { SecureRandom.uuid }
         let(:post) { { post: { content: "" } } }
 
@@ -67,7 +67,7 @@ RSpec.describe "Posts API", type: :request do
         let(:user) { create(:user) }
         let(:post_record) { create(:post, user: user) }
         let(:id) { post_record.id }
-        let(:Authorization) { "Bearer #{Jwt::Encoder.call(user_id: user.id)}" }
+        let(:Authorization) { "Bearer #{auth_token_for(user)}" }
 
         schema BaseResponseSchema.call(data_schema: PostSchema)
 
@@ -76,7 +76,7 @@ RSpec.describe "Posts API", type: :request do
 
       response "404", "post not found" do
         let(:user) { create(:user) }
-        let(:Authorization) { "Bearer #{Jwt::Encoder.call(user_id: user.id)}" }
+        let(:Authorization) { "Bearer #{auth_token_for(user)}" }
         let(:id) { 999999 }
 
         run_test!
@@ -93,7 +93,7 @@ RSpec.describe "Posts API", type: :request do
         let(:user) { create(:user) }
         let(:post_record) { create(:post, user: user) }
         let(:id) { post_record.id }
-        let(:Authorization) { "Bearer #{Jwt::Encoder.call(user_id: user.id)}" }
+        let(:Authorization) { "Bearer #{auth_token_for(user)}" }
 
         run_test!
       end
@@ -103,7 +103,7 @@ RSpec.describe "Posts API", type: :request do
         let(:other_user) { create(:user) }
         let(:post_record) { create(:post, user: other_user) }
         let(:id) { post_record.id }
-        let(:Authorization) { "Bearer #{Jwt::Encoder.call(user_id: user.id)}" }
+        let(:Authorization) { "Bearer #{auth_token_for(user)}" }
 
         run_test!
       end
@@ -123,7 +123,7 @@ RSpec.describe "Posts API", type: :request do
         let(:user) { create(:user) }
         let(:post_record) { create(:post) }
         let(:id) { post_record.id }
-        let(:Authorization) { "Bearer #{Jwt::Encoder.call(user_id: user.id)}" }
+        let(:Authorization) { "Bearer #{auth_token_for(user)}" }
 
         run_test!
       end
@@ -140,7 +140,7 @@ RSpec.describe "Posts API", type: :request do
         let(:post_record) { create(:post) }
         let!(:like) { create(:like, user: user, post: post_record) }
         let(:id) { post_record.id }
-        let(:Authorization) { "Bearer #{Jwt::Encoder.call(user_id: user.id)}" }
+        let(:Authorization) { "Bearer #{auth_token_for(user)}" }
 
         run_test!
       end
@@ -176,7 +176,7 @@ RSpec.describe "Posts API", type: :request do
       response "201", "report created" do
         let(:user) { create(:user) }
         let(:post_record) { create(:post) }
-        let(:Authorization) { "Bearer #{Jwt::Encoder.call(user_id: user.id)}" }
+        let(:Authorization) { "Bearer #{auth_token_for(user)}" }
         let(:id) { post_record.id }
         let(:report) { { report: { reason: "Spam", category: "spam" } } }
 
@@ -186,7 +186,7 @@ RSpec.describe "Posts API", type: :request do
       response "422", "already reported" do
         let(:user) { create(:user) }
         let(:post_record) { create(:post) }
-        let(:Authorization) { "Bearer #{Jwt::Encoder.call(user_id: user.id)}" }
+        let(:Authorization) { "Bearer #{auth_token_for(user)}" }
         let(:id) { post_record.id }
         let(:report) { { report: { reason: "Spam" } } }
 
