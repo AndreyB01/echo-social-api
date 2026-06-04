@@ -16,7 +16,8 @@ RSpec.describe 'Notifications API',
           data_schema: {
             type: :array,
             items: NotificationSchema
-          }
+          },
+          meta_schema: PaginationMetaSchema
         )
 
         let!(:user) { create(:user) }
