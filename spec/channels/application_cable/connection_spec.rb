@@ -2,7 +2,7 @@ require "rails_helper"
 
 RSpec.describe ApplicationCable::Connection, type: :channel do
   let!(:user) { create(:user) }
-  let!(:session) { create(:user_session, user: user) }
+  let(:session) { OpenStruct.new(id: 1) }
 
   let(:token) do
     Jwt::AccessTokenEncoder.call(user: user, session: session)
@@ -15,6 +15,8 @@ RSpec.describe ApplicationCable::Connection, type: :channel do
   end
 
   it "rejects connection without token" do
-    expect { connect "/cable" }.to have_rejected_connection
+    expect {
+      connect "/cable"
+    }.to have_rejected_connection
   end
 end
