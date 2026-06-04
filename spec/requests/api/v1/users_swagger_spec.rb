@@ -1,7 +1,6 @@
 require "swagger_helper"
 
 RSpec.describe "Users API", type: :request do
-  # 1. GET /users/:username
   path "/api/v1/users/{username}" do
     parameter name: :username, in: :path, type: :string, required: true
 
@@ -43,9 +42,10 @@ RSpec.describe "Users API", type: :request do
     end
   end
 
-  # 2. GET /users/:username/posts
   path "/api/v1/users/{username}/posts" do
     parameter name: :username, in: :path, type: :string, required: true
+    parameter name: :cursor, in: :query, type: :string, required: false, description: "Pagination cursor"
+    parameter name: :limit, in: :query, type: :integer, required: false, description: "Items per page (default 20, max 50)"
 
     get "List user posts" do
       tags "Users"
@@ -57,6 +57,14 @@ RSpec.describe "Users API", type: :request do
         let(:Authorization) { "Bearer #{auth_token_for(user)}" }
         let(:username) { user.username }
 
+        schema BaseResponseSchema.call(
+          data_schema: {
+            type: :array,
+            items: PostSchema
+          },
+          meta_schema: PaginationMetaSchema
+        )
+
         example "application/json", :success_response, {
           data: [
             {
@@ -64,10 +72,16 @@ RSpec.describe "Users API", type: :request do
               body: "Hello world",
               created_at: "2026-06-02T12:00:00Z",
               likes_count: 5,
-              comments_count: 2
+              comments_count: 2,
+              hashtags: [],
+              author: { id: 1, username: "john_doe" }
             }
           ],
-          meta: {},
+          meta: {
+            next_cursor: nil,
+            limit: 20,
+            has_next: false
+          },
           errors: []
         }
 
@@ -76,9 +90,10 @@ RSpec.describe "Users API", type: :request do
     end
   end
 
-  # 3. GET /users/:username/followers
   path "/api/v1/users/{username}/followers" do
     parameter name: :username, in: :path, type: :string, required: true
+    parameter name: :cursor, in: :query, type: :string, required: false, description: "Pagination cursor"
+    parameter name: :limit, in: :query, type: :integer, required: false, description: "Items per page (default 20, max 50)"
 
     get "List user followers" do
       tags "Users"
@@ -90,11 +105,23 @@ RSpec.describe "Users API", type: :request do
         let(:Authorization) { "Bearer #{auth_token_for(user)}" }
         let(:username) { user.username }
 
+        schema BaseResponseSchema.call(
+          data_schema: {
+            type: :array,
+            items: UserSchema
+          },
+          meta_schema: PaginationMetaSchema
+        )
+
         example "application/json", :success_response, {
           data: [
             { id: 2, username: "alice", display_name: "Alice" }
           ],
-          meta: {},
+          meta: {
+            next_cursor: nil,
+            limit: 20,
+            has_next: false
+          },
           errors: []
         }
 
@@ -103,9 +130,10 @@ RSpec.describe "Users API", type: :request do
     end
   end
 
-  # 4. GET /users/:username/following
   path "/api/v1/users/{username}/following" do
     parameter name: :username, in: :path, type: :string, required: true
+    parameter name: :cursor, in: :query, type: :string, required: false, description: "Pagination cursor"
+    parameter name: :limit, in: :query, type: :integer, required: false, description: "Items per page (default 20, max 50)"
 
     get "List user following" do
       tags "Users"
@@ -117,11 +145,23 @@ RSpec.describe "Users API", type: :request do
         let(:Authorization) { "Bearer #{auth_token_for(user)}" }
         let(:username) { user.username }
 
+        schema BaseResponseSchema.call(
+          data_schema: {
+            type: :array,
+            items: UserSchema
+          },
+          meta_schema: PaginationMetaSchema
+        )
+
         example "application/json", :success_response, {
           data: [
             { id: 3, username: "bob", display_name: "Bob" }
           ],
-          meta: {},
+          meta: {
+            next_cursor: nil,
+            limit: 20,
+            has_next: false
+          },
           errors: []
         }
 
@@ -130,7 +170,6 @@ RSpec.describe "Users API", type: :request do
     end
   end
 
-  # 5. POST /users/:username/follow
   path "/api/v1/users/{username}/follow" do
     parameter name: :username, in: :path, schema: { type: :string }
 
@@ -162,7 +201,6 @@ RSpec.describe "Users API", type: :request do
       end
     end
 
-    # 6. DELETE /users/:username/follow
     delete "Unfollow user" do
       tags "Users"
       produces "application/json"
@@ -199,7 +237,6 @@ RSpec.describe "Users API", type: :request do
     end
   end
 
-  # 7. POST /users/:username/block
   path "/api/v1/users/{username}/block" do
     parameter name: :username, in: :path, type: :string
 
@@ -228,7 +265,6 @@ RSpec.describe "Users API", type: :request do
       end
     end
 
-    # 8. DELETE /users/:username/block
     delete "Unblock user" do
       tags "Users"
       security [ bearerAuth: [] ]
@@ -259,7 +295,6 @@ RSpec.describe "Users API", type: :request do
     end
   end
 
-  # 9. POST /users/:username/mute
   path "/api/v1/users/{username}/mute" do
     parameter name: :username, in: :path, schema: { type: :string }
 
@@ -288,7 +323,6 @@ RSpec.describe "Users API", type: :request do
       end
     end
 
-    # 10. DELETE /users/:username/mute
     delete "Unmute user" do
       tags "Users"
       security [ bearerAuth: [] ]

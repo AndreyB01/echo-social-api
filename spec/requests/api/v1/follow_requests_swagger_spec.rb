@@ -29,7 +29,8 @@ RSpec.describe "Follow Requests API", type: :request do
           data_schema: {
             type: :array,
             items: FollowRequestSchema
-          }
+          },
+          meta_schema: PaginationMetaSchema
         )
 
         run_test!

@@ -1,7 +1,6 @@
 require "swagger_helper"
 
 RSpec.describe "Posts API", type: :request do
-  # 1. Создание поста
   path "/api/v1/posts" do
     post "Create post" do
       tags "Posts"
@@ -54,7 +53,6 @@ RSpec.describe "Posts API", type: :request do
     end
   end
 
-  # 2. Просмотр поста
   path "/api/v1/posts/{id}" do
     parameter name: :id, in: :path, type: :integer, required: true
 
@@ -83,7 +81,6 @@ RSpec.describe "Posts API", type: :request do
       end
     end
 
-    # 3. Удаление поста
     delete "Delete post" do
       tags "Posts"
       produces "application/json"
@@ -110,7 +107,6 @@ RSpec.describe "Posts API", type: :request do
     end
   end
 
-  # 4. Лайк поста
   path "/api/v1/posts/{id}/like" do
     parameter name: :id, in: :path, type: :integer, required: true
 
@@ -129,7 +125,6 @@ RSpec.describe "Posts API", type: :request do
       end
     end
 
-    # 5. Удаление лайка
     delete "Unlike post" do
       tags "Posts"
       produces "application/json"
@@ -147,7 +142,6 @@ RSpec.describe "Posts API", type: :request do
     end
   end
 
-  # 6. Репорт (жалоба) на пост
   path "/api/v1/posts/{id}/report" do
     parameter name: :id, in: :path, type: :string, required: true
 
