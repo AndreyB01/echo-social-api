@@ -23,7 +23,7 @@ let!(:hashtag) do
 end
 
 let(:token) do
-  Jwt::Encoder.call(user_id: user.id)
+  auth_token_for(user)
 end
 
 let(:headers) do

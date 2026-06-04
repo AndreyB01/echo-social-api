@@ -24,7 +24,7 @@ RSpec.describe "Notifications API", type: :request do
   end
 
   let(:token) do
-    Jwt::Encoder.call(user_id: user.id)
+    auth_token_for(user)
   end
 
   let(:headers) do
