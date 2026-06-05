@@ -13,15 +13,17 @@ module ApplicationCable
 
       reject_unauthorized_connection unless token
 
-      payload = Jwt::Decoder.call(token)
+      payload =
+        Jwt::AccessTokenDecoder.call(token)
 
-      user = User.find_by(id: payload["user_id"])
+      reject_unauthorized_connection unless payload
+
+      user =
+        User.find_by(id: payload["sub"])
 
       reject_unauthorized_connection unless user
 
       user
-    rescue JWT::DecodeError
-      reject_unauthorized_connection
     end
   end
 end

@@ -48,7 +48,7 @@ RSpec.describe "Comments API", type: :request do
       response "201", "comment created" do
         let(:user) { create(:user) }
         let(:post_record) { create(:post) }
-        let(:Authorization) { "Bearer #{Jwt::Encoder.call(user_id: user.id)}" }
+        let(:Authorization) { "Bearer #{auth_token_for(user)}" }
         let(:post_id) { post_record.id }
         let(:comment) { { comment: { body: "Nice post!" } } }
 
@@ -59,7 +59,8 @@ RSpec.describe "Comments API", type: :request do
     end
   end
 
-  path "/api/v1/comments/{id}" do
+  path "/api/v1/posts/{post_id}/comments/{id}" do
+    parameter name: :post_id, in: :path, type: :integer, required: true
     parameter name: :id, in: :path, type: :integer, required: true
 
     delete "Delete comment" do
@@ -71,7 +72,8 @@ RSpec.describe "Comments API", type: :request do
         let(:user) { create(:user) }
         let(:post_record) { create(:post) }
         let(:comment_record) { create(:comment, user: user, post: post_record) }
-        let(:Authorization) { "Bearer #{Jwt::Encoder.call(user_id: user.id)}" }
+        let(:Authorization) { "Bearer #{auth_token_for(user)}" }
+        let(:post_id) { post_record.id }
         let(:id) { comment_record.id }
 
         run_test!
@@ -82,7 +84,8 @@ RSpec.describe "Comments API", type: :request do
         let(:other_user) { create(:user) }
         let(:post_record) { create(:post) }
         let(:comment_record) { create(:comment, user: other_user, post: post_record) }
-        let(:Authorization) { "Bearer #{Jwt::Encoder.call(user_id: user.id)}" }
+        let(:Authorization) { "Bearer #{auth_token_for(user)}" }
+        let(:post_id) { post_record.id }
         let(:id) { comment_record.id }
 
         run_test!

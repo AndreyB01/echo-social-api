@@ -17,7 +17,7 @@ RSpec.describe "Profile API", type: :request do
         let(:user) { create(:user) }
 
         let(:Authorization) do
-          "Bearer #{Jwt::Encoder.call(user_id: user.id)}"
+          "Bearer #{auth_token_for(user)}"
         end
 
         example "application/json", :success_response, {
@@ -69,7 +69,7 @@ RSpec.describe "Profile API", type: :request do
         let(:current_user) { create(:user) }
 
         let(:Authorization) do
-          "Bearer #{Jwt::Encoder.call(user_id: current_user.id)}"
+          "Bearer #{auth_token_for(current_user)}"
         end
 
         let(:user) do

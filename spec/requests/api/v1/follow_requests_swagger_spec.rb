@@ -14,7 +14,7 @@ RSpec.describe "Follow Requests API", type: :request do
         let(:follower) { create(:user) }
 
         let(:Authorization) do
-          "Bearer #{Jwt::Encoder.call(user_id: user.id)}"
+          "Bearer #{auth_token_for(user)}"
         end
 
         before do
@@ -29,7 +29,8 @@ RSpec.describe "Follow Requests API", type: :request do
           data_schema: {
             type: :array,
             items: FollowRequestSchema
-          }
+          },
+          meta_schema: PaginationMetaSchema
         )
 
         run_test!
@@ -49,7 +50,7 @@ RSpec.describe "Follow Requests API", type: :request do
         let(:current_user) { create(:user) }
         let(:requester) { create(:user) }
         let(:follow) { create(:follow, follower: requester, followed: current_user, status: :pending) }
-        let(:Authorization) { "Bearer #{Jwt::Encoder.call(user_id: current_user.id)}" }
+        let(:Authorization) { "Bearer #{auth_token_for(current_user)}" }
         let(:id) { follow.id }
 
         run_test!
@@ -57,7 +58,7 @@ RSpec.describe "Follow Requests API", type: :request do
 
       response "404", "not found" do
         let(:current_user) { create(:user) }
-        let(:Authorization) { "Bearer #{Jwt::Encoder.call(user_id: current_user.id)}" }
+        let(:Authorization) { "Bearer #{auth_token_for(current_user)}" }
         let(:id) { 999999 }
 
         run_test!
@@ -77,7 +78,7 @@ RSpec.describe "Follow Requests API", type: :request do
         let(:current_user) { create(:user) }
         let(:requester) { create(:user) }
         let(:follow) { create(:follow, follower: requester, followed: current_user, status: :pending) }
-        let(:Authorization) { "Bearer #{Jwt::Encoder.call(user_id: current_user.id)}" }
+        let(:Authorization) { "Bearer #{auth_token_for(current_user)}" }
         let(:id) { follow.id }
 
         run_test!

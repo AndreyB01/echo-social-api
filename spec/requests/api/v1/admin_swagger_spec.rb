@@ -10,14 +10,14 @@ RSpec.describe "Admin API", type: :request do
 
       response "200", "reports list" do
         let(:admin) { create(:user, admin: true) }
-        let(:Authorization) { "Bearer #{Jwt::Encoder.call(user_id: admin.id)}" }
+        let(:Authorization) { "Bearer #{auth_token_for(admin)}" }
 
         run_test!
       end
 
       response "403", "forbidden" do
         let(:user) { create(:user, admin: false) }
-        let(:Authorization) { "Bearer #{Jwt::Encoder.call(user_id: user.id)}" }
+        let(:Authorization) { "Bearer #{auth_token_for(user)}" }
 
         run_test!
       end
@@ -27,7 +27,7 @@ RSpec.describe "Admin API", type: :request do
   path "/api/v1/admin/posts/{id}/hide" do
     parameter name: :id, in: :path, type: :integer, required: true
 
-    post "Hide post" do
+    patch "Hide post" do
       tags "Admin"
       produces "application/json"
       security [ bearerAuth: [] ]
@@ -36,7 +36,7 @@ RSpec.describe "Admin API", type: :request do
       response "200", "post hidden" do
         let(:admin) { create(:user, admin: true) }
         let(:post) { create(:post) }
-        let(:Authorization) { "Bearer #{Jwt::Encoder.call(user_id: admin.id)}" }
+        let(:Authorization) { "Bearer #{auth_token_for(admin)}" }
         let(:id) { post.id }
 
         run_test!
@@ -45,7 +45,7 @@ RSpec.describe "Admin API", type: :request do
       response "403", "forbidden" do
         let(:user) { create(:user, admin: false) }
         let(:post) { create(:post) }
-        let(:Authorization) { "Bearer #{Jwt::Encoder.call(user_id: user.id)}" }
+        let(:Authorization) { "Bearer #{auth_token_for(user)}" }
         let(:id) { post.id }
 
         run_test!
@@ -56,7 +56,7 @@ RSpec.describe "Admin API", type: :request do
   path "/api/v1/admin/users/{id}/ban" do
     parameter name: :id, in: :path, type: :integer, required: true
 
-    post "Ban user" do
+    patch "Ban user" do
       tags "Admin"
       produces "application/json"
       security [ bearerAuth: [] ]
@@ -65,7 +65,7 @@ RSpec.describe "Admin API", type: :request do
       response "200", "user banned" do
         let(:admin) { create(:user, admin: true) }
         let(:target_user) { create(:user) }
-        let(:Authorization) { "Bearer #{Jwt::Encoder.call(user_id: admin.id)}" }
+        let(:Authorization) { "Bearer #{auth_token_for(admin)}" }
         let(:id) { target_user.id }
 
         run_test!
@@ -74,7 +74,7 @@ RSpec.describe "Admin API", type: :request do
       response "403", "forbidden" do
         let(:user) { create(:user, admin: false) }
         let(:target_user) { create(:user) }
-        let(:Authorization) { "Bearer #{Jwt::Encoder.call(user_id: user.id)}" }
+        let(:Authorization) { "Bearer #{auth_token_for(user)}" }
         let(:id) { target_user.id }
 
         run_test!

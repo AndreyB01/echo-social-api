@@ -3,14 +3,21 @@ module Api
     module Auth
       class RegistrationsController < Api::BaseController
         def create
-          user = Users::CreateService.call(
-            user_params
-          )
+          user = Users::CreateService.call(user_params)
 
           render_success(
             data: serialized_user(user),
             status: :created
           )
+        rescue ActiveRecord::RecordInvalid => e
+          # Privacy-safe: логируем детали, но в ответе общая ошибка
+          Rails.logger.info("Registration failed: #{e.record.errors.full_messages.join(', ')}")
+          render json: {
+            error: {
+              code: "validation_failed",
+              message: "Could not create account"
+            }
+          }, status: :unprocessable_entity
         end
 
         private

@@ -13,27 +13,13 @@ RSpec.describe "Feed API", type: :request do
 
       response "200", "feed loaded" do
         let(:user) { create(:user) }
-        let(:Authorization) { "Bearer #{Jwt::Encoder.call(user_id: user.id)}" }
+        let(:Authorization) { "Bearer #{auth_token_for(user)}" }
 
         schema type: :object,
                properties: {
                  items: { type: :array, items: PostSchema },
                  next_cursor: { type: :string, nullable: true }
                }
-
-        run_test!
-      end
-    end
-  end
-
-  path "/api/v1/feed/global" do
-    get "Global feed" do
-      tags "Feed"
-
-      produces "application/json"
-
-      response "200", "feed loaded" do
-        let!(:user) { create(:user) }
 
         run_test!
       end

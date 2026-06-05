@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_05_29_151759) do
+ActiveRecord::Schema[7.1].define(version: 2026_06_05_102045) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "citext"
   enable_extension "pg_trgm"
@@ -52,6 +52,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_05_29_151759) do
     t.index ["blocked_id"], name: "index_blocks_on_blocked_id"
     t.index ["blocker_id", "blocked_id"], name: "index_blocks_on_blocker_id_and_blocked_id", unique: true
     t.index ["blocker_id"], name: "index_blocks_on_blocker_id"
+    t.check_constraint "blocker_id <> blocked_id", name: "blocks_cannot_block_self"
   end
 
   create_table "comments", force: :cascade do |t|
@@ -75,6 +76,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_05_29_151759) do
     t.index ["followed_id"], name: "index_follows_on_followed_id"
     t.index ["follower_id", "followed_id"], name: "index_follows_on_follower_id_and_followed_id", unique: true
     t.index ["follower_id"], name: "index_follows_on_follower_id"
+    t.check_constraint "follower_id <> followed_id", name: "follows_cannot_follow_self"
   end
 
   create_table "hashtags", force: :cascade do |t|
@@ -83,6 +85,18 @@ ActiveRecord::Schema[7.1].define(version: 2026_05_29_151759) do
     t.datetime "updated_at", null: false
     t.index ["name"], name: "index_hashtags_on_name", unique: true
     t.index ["name"], name: "index_hashtags_on_name_trgm", opclass: :gin_trgm_ops, using: :gin
+  end
+
+  create_table "idempotency_keys", force: :cascade do |t|
+    t.string "key", null: false
+    t.bigint "user_id", null: false
+    t.string "response_status"
+    t.jsonb "response_body"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_at"], name: "index_idempotency_keys_on_created_at"
+    t.index ["key"], name: "index_idempotency_keys_on_key", unique: true
+    t.index ["user_id"], name: "index_idempotency_keys_on_user_id"
   end
 
   create_table "likes", force: :cascade do |t|
@@ -103,6 +117,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_05_29_151759) do
     t.index ["muted_id"], name: "index_mutes_on_muted_id"
     t.index ["muter_id", "muted_id"], name: "index_mutes_on_muter_id_and_muted_id", unique: true
     t.index ["muter_id"], name: "index_mutes_on_muter_id"
+    t.check_constraint "muter_id <> muted_id", name: "mutes_cannot_mute_self"
   end
 
   create_table "notifications", force: :cascade do |t|
@@ -150,11 +165,29 @@ ActiveRecord::Schema[7.1].define(version: 2026_05_29_151759) do
     t.integer "likes_count", default: 0, null: false
     t.integer "comments_count", default: 0, null: false
     t.datetime "deleted_at"
+    t.datetime "hidden_at"
+    t.tsvector "search_vector"
     t.index ["body"], name: "index_posts_on_body_trgm", opclass: :gin_trgm_ops, using: :gin
     t.index ["created_at"], name: "index_posts_on_created_at"
     t.index ["deleted_at"], name: "index_posts_on_deleted_at"
+    t.index ["search_vector"], name: "index_posts_on_search_vector", using: :gin
     t.index ["user_id", "created_at"], name: "index_posts_on_user_id_and_created_at"
     t.index ["user_id"], name: "index_posts_on_user_id"
+  end
+
+  create_table "reports", force: :cascade do |t|
+    t.bigint "reporter_id", null: false
+    t.string "reportable_type", null: false
+    t.bigint "reportable_id", null: false
+    t.string "reason", null: false
+    t.string "status", default: "pending", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "category"
+    t.index ["category"], name: "index_reports_on_category"
+    t.index ["reportable_type", "reportable_id"], name: "index_reports_on_reportable_type_and_reportable_id"
+    t.index ["reporter_id"], name: "index_reports_on_reporter_id"
+    t.index ["status"], name: "index_reports_on_status"
   end
 
   create_table "user_sessions", force: :cascade do |t|
@@ -185,6 +218,9 @@ ActiveRecord::Schema[7.1].define(version: 2026_05_29_151759) do
     t.datetime "confirmed_at"
     t.integer "followers_count", default: 0, null: false
     t.integer "following_count", default: 0, null: false
+    t.boolean "admin", default: false, null: false
+    t.datetime "banned_at"
+    t.integer "posts_count", default: 0, null: false
     t.index ["confirmation_token_digest"], name: "index_users_on_confirmation_token_digest", unique: true
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["username"], name: "index_users_on_username", unique: true
@@ -201,6 +237,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_05_29_151759) do
   add_foreign_key "comments", "users"
   add_foreign_key "follows", "users", column: "followed_id"
   add_foreign_key "follows", "users", column: "follower_id"
+  add_foreign_key "idempotency_keys", "users"
   add_foreign_key "likes", "posts"
   add_foreign_key "likes", "users"
   add_foreign_key "mutes", "users", column: "muted_id"
@@ -212,5 +249,6 @@ ActiveRecord::Schema[7.1].define(version: 2026_05_29_151759) do
   add_foreign_key "post_mentions", "posts"
   add_foreign_key "post_mentions", "users"
   add_foreign_key "posts", "users"
+  add_foreign_key "reports", "users", column: "reporter_id"
   add_foreign_key "user_sessions", "users"
 end

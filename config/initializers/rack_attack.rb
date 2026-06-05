@@ -9,9 +9,9 @@ class Rack::Attack
   end
 
   ###
-  # Login throttling
+  # Login throttling (5 attempts per minute as per TZ)
   ###
-  throttle("logins/ip", limit: 5, period: 20.seconds) do |req|
+  throttle("logins/ip", limit: 5, period: 1.minute) do |req|
     if req.path == "/api/v1/auth/login" && req.post?
       req.ip
     end
