@@ -22,8 +22,10 @@ class ApplicationController < ActionController::API
 
   def authorize(record, query)
     policy = policy_for(record)
-    return if policy.public_send(query)
-    render_forbidden
+
+    unless policy.public_send(query)
+      render_forbidden and return
+    end
   end
 
   def policy_for(record)
