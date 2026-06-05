@@ -17,5 +17,10 @@ module ErrorHandler
     rescue_from Auth::LoginService::InvalidCredentialsError do
       render json: { error: "Invalid credentials" }, status: :unauthorized
     end
+
+    rescue_from Pundit::NotAuthorizedError do |error|
+      render json: { error: "Forbidden" }, status: :forbidden
+    end
+
   end
 end

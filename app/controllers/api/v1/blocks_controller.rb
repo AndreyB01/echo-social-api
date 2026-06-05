@@ -1,28 +1,43 @@
-class Api::V1::MutesController < ApplicationController
+class Api::V1::BlocksController < ApplicationController
   before_action :authenticate_user!
   before_action :set_user
 
   def create
-    mute = Mute.find_or_create_by!(muter: current_user, muted: @user)
+    block = Block.find_or_create_by!(
+      blocker: current_user,
+      blocked: @user
+    )
 
     render_success(
-      data: { muted: true, user_id: @user.id },
+      data: {
+        blocked: true,
+        user_id: @user.id
+      },
       status: :created
     )
   end
 
   def destroy
-    mute = Mute.find_by(muter: current_user, muted: @user)
-    mute&.destroy
+    block = Block.find_by(
+      blocker: current_user,
+      blocked: @user
+    )
+
+    block&.destroy
 
     render_success(
-      data: { muted: false, user_id: @user.id }
+      data: {
+        blocked: false,
+        user_id: @user.id
+      }
     )
   end
 
   private
 
   def set_user
-    @user = User.find_by!(username: params[:username])
+    @user = User.find_by!(
+      username: params[:username]
+    )
   end
 end

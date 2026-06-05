@@ -1,7 +1,6 @@
 require "swagger_helper"
 
 RSpec.describe "Posts API", type: :request do
-  # 1. Создание поста
   path "/api/v1/posts" do
     post "Create post" do
       tags "Posts"
@@ -16,27 +15,22 @@ RSpec.describe "Posts API", type: :request do
                 required: true,
                 description: "UUID v4 for idempotency"
 
-      parameter name: :post,
+      parameter name: :post_body,
                 in: :body,
                 schema: {
                   type: :object,
                   properties: {
-                    post: {
-                      type: :object,
-                      properties: {
-                        content: { type: :string, example: "Hello #world @alice", description: "1-500 characters" },
-                        image_id: { type: :string, nullable: true, description: "Signed blob ID for image" }
-                      },
-                      required: ["content"]
-                    }
-                  }
+                    content: { type: :string, example: "Hello #world @alice", description: "1-500 characters" },
+                    image_id: { type: :string, nullable: true, description: "Signed blob ID for image" }
+                  },
+                  required: ["content"]
                 }
 
       response "201", "post created" do
         let(:user) { create(:user) }
-        let(:Authorization) { "Bearer #{Jwt::Encoder.call(user_id: user.id)}" }
+        let(:Authorization) { "Bearer #{auth_token_for(user)}" }
         let(:'Idempotency-Key') { SecureRandom.uuid }
-        let(:post) { { post: { content: "My first post" } } }
+        let(:post_body) { { content: "My first post" } }
 
         schema BaseResponseSchema.call(data_schema: PostSchema)
 
@@ -45,16 +39,15 @@ RSpec.describe "Posts API", type: :request do
 
       response "422", "validation failed" do
         let(:user) { create(:user) }
-        let(:Authorization) { "Bearer #{Jwt::Encoder.call(user_id: user.id)}" }
+        let(:Authorization) { "Bearer #{auth_token_for(user)}" }
         let(:'Idempotency-Key') { SecureRandom.uuid }
-        let(:post) { { post: { content: "" } } }
+        let(:post_body) { { content: "" } }
 
         run_test!
       end
     end
   end
 
-  # 2. Просмотр поста
   path "/api/v1/posts/{id}" do
     parameter name: :id, in: :path, type: :integer, required: true
 
@@ -67,7 +60,7 @@ RSpec.describe "Posts API", type: :request do
         let(:user) { create(:user) }
         let(:post_record) { create(:post, user: user) }
         let(:id) { post_record.id }
-        let(:Authorization) { "Bearer #{Jwt::Encoder.call(user_id: user.id)}" }
+        let(:Authorization) { "Bearer #{auth_token_for(user)}" }
 
         schema BaseResponseSchema.call(data_schema: PostSchema)
 
@@ -76,14 +69,13 @@ RSpec.describe "Posts API", type: :request do
 
       response "404", "post not found" do
         let(:user) { create(:user) }
-        let(:Authorization) { "Bearer #{Jwt::Encoder.call(user_id: user.id)}" }
+        let(:Authorization) { "Bearer #{auth_token_for(user)}" }
         let(:id) { 999999 }
 
         run_test!
       end
     end
 
-    # 3. Удаление поста
     delete "Delete post" do
       tags "Posts"
       produces "application/json"
@@ -93,7 +85,7 @@ RSpec.describe "Posts API", type: :request do
         let(:user) { create(:user) }
         let(:post_record) { create(:post, user: user) }
         let(:id) { post_record.id }
-        let(:Authorization) { "Bearer #{Jwt::Encoder.call(user_id: user.id)}" }
+        let(:Authorization) { "Bearer #{auth_token_for(user)}" }
 
         run_test!
       end
@@ -103,14 +95,13 @@ RSpec.describe "Posts API", type: :request do
         let(:other_user) { create(:user) }
         let(:post_record) { create(:post, user: other_user) }
         let(:id) { post_record.id }
-        let(:Authorization) { "Bearer #{Jwt::Encoder.call(user_id: user.id)}" }
+        let(:Authorization) { "Bearer #{auth_token_for(user)}" }
 
         run_test!
       end
     end
   end
 
-  # 4. Лайк поста
   path "/api/v1/posts/{id}/like" do
     parameter name: :id, in: :path, type: :integer, required: true
 
@@ -123,13 +114,12 @@ RSpec.describe "Posts API", type: :request do
         let(:user) { create(:user) }
         let(:post_record) { create(:post) }
         let(:id) { post_record.id }
-        let(:Authorization) { "Bearer #{Jwt::Encoder.call(user_id: user.id)}" }
+        let(:Authorization) { "Bearer #{auth_token_for(user)}" }
 
         run_test!
       end
     end
 
-    # 5. Удаление лайка
     delete "Unlike post" do
       tags "Posts"
       produces "application/json"
@@ -140,14 +130,13 @@ RSpec.describe "Posts API", type: :request do
         let(:post_record) { create(:post) }
         let!(:like) { create(:like, user: user, post: post_record) }
         let(:id) { post_record.id }
-        let(:Authorization) { "Bearer #{Jwt::Encoder.call(user_id: user.id)}" }
+        let(:Authorization) { "Bearer #{auth_token_for(user)}" }
 
         run_test!
       end
     end
   end
 
-  # 6. Репорт (жалоба) на пост
   path "/api/v1/posts/{id}/report" do
     parameter name: :id, in: :path, type: :string, required: true
 
@@ -176,7 +165,7 @@ RSpec.describe "Posts API", type: :request do
       response "201", "report created" do
         let(:user) { create(:user) }
         let(:post_record) { create(:post) }
-        let(:Authorization) { "Bearer #{Jwt::Encoder.call(user_id: user.id)}" }
+        let(:Authorization) { "Bearer #{auth_token_for(user)}" }
         let(:id) { post_record.id }
         let(:report) { { report: { reason: "Spam", category: "spam" } } }
 
@@ -186,11 +175,11 @@ RSpec.describe "Posts API", type: :request do
       response "422", "already reported" do
         let(:user) { create(:user) }
         let(:post_record) { create(:post) }
-        let(:Authorization) { "Bearer #{Jwt::Encoder.call(user_id: user.id)}" }
+        let(:Authorization) { "Bearer #{auth_token_for(user)}" }
         let(:id) { post_record.id }
         let(:report) { { report: { reason: "Spam" } } }
 
-        before { create(:report, user: user, reportable: post_record) }
+        before { create(:report, reporter: user, reportable: post_record) }
 
         run_test!
       end

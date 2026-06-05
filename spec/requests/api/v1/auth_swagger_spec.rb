@@ -63,7 +63,20 @@ RSpec.describe "Auth API", type: :request do
       end
 
       response "422", "validation failed" do
-        schema ValidationErrorSchema
+        schema(
+          type: :object,
+          properties: {
+            error: {
+              type: :object,
+              properties: {
+                code: { type: :string },
+                message: { type: :string }
+              },
+              required: %w[code message]
+            }
+          },
+          required: ["error"]
+        )
 
         let(:user) do
           {
@@ -77,10 +90,10 @@ RSpec.describe "Auth API", type: :request do
         end
 
         example "application/json", :validation_error, {
-          errors: [
-            "Email has already been taken",
-            "Password is too short (minimum is 8 characters)"
-          ]
+          error: {
+            code: "validation_failed",
+            message: "Could not create account"
+          }
         }
 
         run_test!
@@ -103,7 +116,7 @@ RSpec.describe "Auth API", type: :request do
                     user: {
                       type: :object,
                       properties: {
-                        email: {
+                        login: {
                           type: :string,
                           example: "john@example.com"
                         },
@@ -112,7 +125,7 @@ RSpec.describe "Auth API", type: :request do
                           example: "password123"
                         }
                       },
-                      required: %w[email password]
+                      required: %w[login password]
                     }
                   }
                 }
@@ -131,7 +144,7 @@ RSpec.describe "Auth API", type: :request do
         let(:user) do
           {
             user: {
-              email: "john@example.com",
+              login: "john@example.com",
               password: "password123"
             }
           }
@@ -156,7 +169,7 @@ RSpec.describe "Auth API", type: :request do
         let(:user) do
           {
             user: {
-              email: "wrong@example.com",
+              login: "wrong@example.com",
               password: "wrongpassword"
             }
           }
@@ -193,9 +206,7 @@ RSpec.describe "Auth API", type: :request do
 
       response "200", "token refreshed" do
         let(:user) { create(:user) }
-
         let(:raw_refresh_token) { "valid_refresh_token" }
-
         let!(:user_session) do
           UserSession.create!(
             user: user,
@@ -203,10 +214,7 @@ RSpec.describe "Auth API", type: :request do
             expires_at: 30.days.from_now
           )
         end
-
-        let(:refresh_token) do
-          { refresh_token: raw_refresh_token }
-        end
+        let(:refresh_token) { { refresh_token: raw_refresh_token } }
 
         example "application/json", :success_response, {
           access_token: "new_access_token",
@@ -303,9 +311,14 @@ RSpec.describe "Auth API", type: :request do
                 }
 
       response "200", "email confirmed" do
+        let!(:user) { create(:user, confirmed_at: nil) }
         let(:token) do
+          token_data =
+            Auth::EmailConfirmationTokenGenerator.call(
+              user: user
+            )
           {
-            token: "valid_confirmation_token"
+            token: token_data[:raw_token]
           }
         end
 
@@ -313,12 +326,7 @@ RSpec.describe "Auth API", type: :request do
       end
 
       response "422", "invalid token" do
-        let(:token) do
-          {
-            token: "invalid_token"
-          }
-        end
-
+        let(:token) { { token: "invalid_token" } }
         run_test!
       end
     end
@@ -347,12 +355,7 @@ RSpec.describe "Auth API", type: :request do
                 }
 
       response "200", "confirmation email sent" do
-        let(:user) { { user: { email: "test@example.com" } } }
-        run_test!
-      end
-
-      response "404", "user not found" do
-        let(:user) { { user: { email: "not_exist@example.com" } } }
+        let(:user) { { user: { email: "any@example.com" } } }
         run_test!
       end
     end

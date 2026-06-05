@@ -4,7 +4,7 @@ module Api
       class SessionsController < Api::BaseController
         def create
           tokens = ::Auth::LoginService.call(
-            email: login_params[:email],
+            login: login_params[:login],
             password: login_params[:password],
             user_agent: request.user_agent,
             ip_address: request.remote_ip
@@ -14,7 +14,8 @@ module Api
             data: {
               access_token: tokens[:access_token],
               refresh_token: tokens[:refresh_token],
-              token_type: "Bearer"
+              token_type: "Bearer",
+              expires_in: 15.minutes.to_i
             }
           )
         end
@@ -23,7 +24,7 @@ module Api
 
         def login_params
           params.require(:user).permit(
-            :email,
+            :login,
             :password
           )
         end

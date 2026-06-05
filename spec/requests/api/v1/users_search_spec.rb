@@ -17,7 +17,7 @@ RSpec.describe "Users Search API", type: :request do
     let(:user) { create(:user) }
 
     let(:token) do
-      Jwt::Encoder.call(user_id: user.id)
+      auth_token_for(user)
     end
 
     it "returns matched users" do

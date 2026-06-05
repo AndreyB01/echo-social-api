@@ -6,7 +6,7 @@ RSpec.describe "Comments API", type: :request do
   let!(:comments) { create_list(:comment, 3, post: post, user: user) }
 
   let(:token) do
-    Jwt::Encoder.call(user_id: user.id)
+    auth_token_for(user)
   end
 
   let(:headers) do
