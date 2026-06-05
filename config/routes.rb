@@ -8,7 +8,8 @@ Rails.application.routes.draw do
   mount LetterOpenerWeb::Engine, at: "/letters" if Rails.env.development?
 
   get "/healthz", to: "health#index"
-
+  get "/search", to: "api/v1/search#index"
+  
   namespace :api do
     namespace :v1 do
       get "feed", to: "feed#index"
@@ -37,7 +38,12 @@ Rails.application.routes.draw do
       patch "users/:username/follow/accept", to: "follows#accept"
       patch "users/:username/follow/reject", to: "follows#reject"
 
-      resources :follow_requests, only: [:index]
+      resources :follow_requests, only: [:index] do
+        member do
+          post :accept
+          post :reject
+        end
+      end
 
       namespace :auth do
         post :register, to: "registrations#create"
@@ -54,6 +60,9 @@ Rails.application.routes.draw do
       resources :posts, only: %i[index create show update destroy] do
         resource :like, only: [:create, :destroy]
         resources :comments, only: [:index, :create, :destroy]
+        member do
+          post :report, to: "reports#create"
+        end
       end
 
       resources :hashtags,

@@ -15,27 +15,22 @@ RSpec.describe "Posts API", type: :request do
                 required: true,
                 description: "UUID v4 for idempotency"
 
-      parameter name: :post,
+      parameter name: :post_body,
                 in: :body,
                 schema: {
                   type: :object,
                   properties: {
-                    post: {
-                      type: :object,
-                      properties: {
-                        content: { type: :string, example: "Hello #world @alice", description: "1-500 characters" },
-                        image_id: { type: :string, nullable: true, description: "Signed blob ID for image" }
-                      },
-                      required: ["content"]
-                    }
-                  }
+                    content: { type: :string, example: "Hello #world @alice", description: "1-500 characters" },
+                    image_id: { type: :string, nullable: true, description: "Signed blob ID for image" }
+                  },
+                  required: ["content"]
                 }
 
       response "201", "post created" do
         let(:user) { create(:user) }
         let(:Authorization) { "Bearer #{auth_token_for(user)}" }
         let(:'Idempotency-Key') { SecureRandom.uuid }
-        let(:post) { { post: { content: "My first post" } } }
+        let(:post_body) { { content: "My first post" } }
 
         schema BaseResponseSchema.call(data_schema: PostSchema)
 
@@ -46,7 +41,7 @@ RSpec.describe "Posts API", type: :request do
         let(:user) { create(:user) }
         let(:Authorization) { "Bearer #{auth_token_for(user)}" }
         let(:'Idempotency-Key') { SecureRandom.uuid }
-        let(:post) { { post: { content: "" } } }
+        let(:post_body) { { content: "" } }
 
         run_test!
       end
@@ -184,7 +179,7 @@ RSpec.describe "Posts API", type: :request do
         let(:id) { post_record.id }
         let(:report) { { report: { reason: "Spam" } } }
 
-        before { create(:report, user: user, reportable: post_record) }
+        before { create(:report, reporter: user, reportable: post_record) }
 
         run_test!
       end

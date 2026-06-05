@@ -34,11 +34,10 @@ module Api
           return render json: idempotent.response_body, status: idempotent.response_status
         end
 
-        post = current_user.posts.create!(content: post_params[:content], images: post_params[:images])
+        post = current_user.posts.create!(body: params[:content], images: params[:images])
 
         response = {
-          data: post.as_json(include: { user: { only: %i[id username display_name avatar] }, hashtags: {}, mentions: {} })
-        }
+          data: post.as_json(include: { user: { only: %i[id username display_name avatar] } })        }
 
         IdempotencyKey.create!(
           key: key,

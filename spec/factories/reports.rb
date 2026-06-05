@@ -1,12 +1,8 @@
 FactoryBot.define do
   factory :report do
     association :reporter, factory: :user
-
-    reportable_type { "Post" }
-    reportable_id { create(:post).id }
-
+    reportable { create(:post) }
     reason { "Spam" }
-
     status { "pending" }
   end
 end
