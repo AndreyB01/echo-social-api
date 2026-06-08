@@ -2,7 +2,7 @@ class Api::V1::CommentsController < ApplicationController
   before_action :authenticate_user!, except: [:index]
 
   def index
-    post = Post.active.find(params[:post_id])
+    post = Post.visible_to(current_user).find(params[:post_id])
 
     comments = post.comments.active
                   .includes(:user)
@@ -25,7 +25,8 @@ class Api::V1::CommentsController < ApplicationController
   end
 
   def create
-    post = Post.active.find(params[:post_id])
+    post = Post.visible_to(current_user)
+           .find(params[:post_id])
 
     comment = current_user.comments.create!(
       post: post,
