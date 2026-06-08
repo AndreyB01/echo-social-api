@@ -1,5 +1,5 @@
 class Post < ApplicationRecord
-  belongs_to :user
+  belongs_to :user, counter_cache: true
   has_many_attached :images
 
   MAX_IMAGES = 4
@@ -30,7 +30,9 @@ class Post < ApplicationRecord
   scope :active, -> { where(deleted_at: nil) }
   scope :deleted, -> { where.not(deleted_at: nil) }
 
-  scope :visible_to, ->(user) {
+  scope :visible_to, lambda { |user|
+    next none unless user
+
     blocker_user_ids =
       Block.where(blocked_id: user.id)
            .select(:blocker_id)
