@@ -1,16 +1,20 @@
 class Api::V1::FeedController < ApplicationController
+  before_action :authenticate_user!
+
   def index
     limit = params.fetch(:limit, 20).to_i.clamp(1, 100)
     cursor = params[:cursor]
 
-    posts_query = Post
-      .includes(
-        :user,
-        :hashtags,
-        :likes,
-        :comments
-      )
-      .order(id: :desc)
+    posts_query =
+      Post.active
+          .visible_to(current_user)
+          .includes(
+            :user,
+            :hashtags,
+            :likes,
+            :comments
+          )
+          .order(id: :desc)
 
     if cursor.present?
       posts_query = posts_query.where("id < ?", cursor.to_i)
