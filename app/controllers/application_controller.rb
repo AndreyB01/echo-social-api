@@ -15,6 +15,12 @@ class ApplicationController < ActionController::API
     decoded_token = Jwt::AccessTokenDecoder.call(token)
     return render_unauthorized unless decoded_token
 
+    session = UserSession.active.find_by(
+      id: decoded_token["session_id"],
+      user_id: decoded_token["sub"]
+    )
+    return render_unauthorized unless session
+
     @current_user = User.find(decoded_token["sub"])
   rescue ActiveRecord::RecordNotFound
     render_unauthorized
