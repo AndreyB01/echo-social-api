@@ -2,7 +2,8 @@ class Api::V1::LikesController < ApplicationController
   before_action :authenticate_user!
 
   def create
-    post = Post.find(params[:post_id])
+    post = Post.visible_to(current_user)
+           .find(params[:post_id])
 
     like = current_user.likes.create!(post: post)
 
@@ -15,7 +16,8 @@ class Api::V1::LikesController < ApplicationController
   end
 
   def destroy
-    post = Post.find(params[:post_id])
+    post = Post.visible_to(current_user)
+           .find(params[:post_id])
 
     current_user.likes.find_by!(post: post).destroy!
 
