@@ -1,5 +1,5 @@
 class Post < ApplicationRecord
-  belongs_to :user
+  belongs_to :user, counter_cache: true
   has_many_attached :images
 
   MAX_IMAGES = 4
