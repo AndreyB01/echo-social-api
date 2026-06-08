@@ -2,9 +2,11 @@ class Api::V1::HashtagsController < ApplicationController
   def posts
     hashtag = Hashtag.find_by!(name: params[:tag].downcase)
 
-    posts = hashtag.posts
-                   .includes(:user, :hashtags)
-                   .order(created_at: :desc)
+    posts = Post.visible_to(current_user)
+            .joins(:hashtags)
+            .where(hashtags: { id: hashtag.id })
+            .includes(:user, :hashtags)
+            .order(created_at: :desc)
 
     render json: {
       data: posts.map { |post| serialize_post(post) }

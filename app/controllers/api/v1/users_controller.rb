@@ -7,7 +7,13 @@ class Api::V1::UsersController < ApplicationController
   end
 
   def posts
-    render_success(data: PostSerializer.render_collection(@user.posts.order(created_at: :desc)))
+    posts = Post.visible_to(current_user)
+                .where(user: @user)
+                .order(created_at: :desc)
+
+    render_success(
+      data: PostSerializer.render_collection(posts)
+    )
   end
 
   def followers
