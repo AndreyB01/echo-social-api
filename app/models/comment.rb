@@ -17,6 +17,8 @@ class Comment < ApplicationRecord
 
   def create_notification
     return if user == post.user
+    return if Block.exists?(blocker: post.user, blocked: user)
+    return if Mute.exists?(muter: post.user, muted: user)
 
     Notification.create!(
       user: post.user,
