@@ -3,6 +3,7 @@ class CreateNotificationJob < ApplicationJob
 
   def perform(user:, actor:, notification_type:, notifiable:)
     return if user == actor
+    return if Block.exists?(blocker: user, blocked: actor)
     return if Mute.exists?(muter: user, muted: actor)
 
     Notification.find_or_create_by!(
