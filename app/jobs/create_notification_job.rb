@@ -6,11 +6,37 @@ class CreateNotificationJob < ApplicationJob
     return if Block.exists?(blocker: user, blocked: actor)
     return if Mute.exists?(muter: user, muted: actor)
 
-    Notification.find_or_create_by!(
+    return if recent_notification_exists?(
       user: user,
       actor: actor,
       notification_type: notification_type,
       notifiable: notifiable
     )
+
+    Notification.create!(
+      user: user,
+      actor: actor,
+      notification_type: notification_type,
+      notifiable: notifiable
+    )
+  end
+
+  private
+
+  def recent_notification_exists?(
+    user:,
+    actor:,
+    notification_type:,
+    notifiable:
+  )
+    Notification.where(
+      user: user,
+      actor: actor,
+      notification_type: notification_type,
+      notifiable: notifiable
+    ).where(
+      "created_at >= ?",
+      24.hours.ago
+    ).exists?
   end
 end

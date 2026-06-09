@@ -6,10 +6,7 @@ class NotifyMentionsJob < ApplicationJob
     user = User.find_by(id: user_id)
     return unless post && user
 
-    return if Block.exists?(blocker: user, blocked: post.user)
-    return if Mute.exists?(muter: user, muted: post.user)
-
-    Notification.create!(
+    CreateNotificationJob.perform_later(
       user: user,
       actor: post.user,
       notification_type: "mention",
