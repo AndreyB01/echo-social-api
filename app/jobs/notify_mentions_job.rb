@@ -13,8 +13,6 @@ class NotifyMentionsJob < ApplicationJob
       notification_type: "mention",
       notifiable: post
     )
-
-    NotificationBroadcastService.call(user)
-    UnreadNotificationsBroadcastService.call(user)
+    
   end
 end
