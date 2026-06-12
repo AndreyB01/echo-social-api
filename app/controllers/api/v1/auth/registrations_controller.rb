@@ -10,7 +10,6 @@ module Api
             status: :created
           )
         rescue ActiveRecord::RecordInvalid => e
-          # Privacy-safe: логируем детали, но в ответе общая ошибка
           Rails.logger.info("Registration failed: #{e.record.errors.full_messages.join(', ')}")
           render json: {
             error: {
