@@ -123,6 +123,9 @@ paths:
                     username:
                       type: string
                       example: john_doe
+                    display_name:
+                      type: string
+                      example: John Doe
                     password:
                       type: string
                       example: password123
@@ -132,6 +135,7 @@ paths:
                   required:
                   - email
                   - username
+                  - display_name
                   - password
                   - password_confirmation
   "/api/v1/auth/login":
@@ -179,14 +183,14 @@ paths:
                 user:
                   type: object
                   properties:
-                    email:
+                    login:
                       type: string
                       example: john@example.com
                     password:
                       type: string
                       example: password123
                   required:
-                  - email
+                  - login
                   - password
   "/api/v1/auth/refresh":
     post:
