@@ -39,7 +39,6 @@ module Auth
         user.authenticate(password)
 
       raise InvalidCredentialsError unless authenticated_user
-      raise InvalidCredentialsError unless user.confirmed_at?
 
       raw_refresh_token =
         SecureRandom.hex(64)
